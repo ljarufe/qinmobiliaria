@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Etapas de{% endblocktrans %} {{ proyecto }}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/esquema_etapas.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.progressbar.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.over-slider.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}proyectos/js/esquema_etapas.js"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="span-23 last contenedor">
+        <h2>{% blocktrans %}Etapas de{% endblocktrans %}: {{ proyecto }}</h2>
+        {% for esquema_etapa in esquema_avance %}
+        <div class="span-23 last append-bottom">
+            <h3>{{ esquema_etapa.etapa }}</h3>
+            <div class="span-23 last etapa_frame">
+                {% for esquema_subetapa in esquema_etapa.subetapas %}
+                <div class="span-23 last">
+                    <div class="subetapa">
+                        <div class="span-10">
+                            <h4>{{ esquema_subetapa.subetapa }}</h4>
+                        </div>
+                        <div class="span-13 last">
+                        {% if esquema_subetapa.subetapa.fecha_inicio %}
+                            {% blocktrans %}Del{% endblocktrans %} {{ esquema_subetapa.subetapa.fecha_inicio }} {% blocktrans %}al{% endblocktrans %} {{ esquema_subetapa.subetapa.fecha_fin }}
+                        {% endif %}
+                        </div>
+                    </div>
+                    <div class="span-23 last">
+                        <div class="link_avance">
+                            <span class="solid_arrow">▼</span>{% blocktrans %}Ver avances{% endblocktrans %}
+                        </div>
+                        <div class="span-23 last prepend-top append-bottom avance{% if forloop.counter == 1 %} show{% endif %}">
+                        {% for esquema_avances in esquema_subetapa.avances %}
+                            <div class="span-8 {% if forloop.counter|divisibleby:"2" %}push-5 last{% else %}push-2{% endif %}">
+                                <div class="span-8 last milestone">
+                                    <div class="span-4 title">
+                                        <h5>{{ esquema_avances.avance.notas }}</h5>
+                                    </div>
+                                    <div class="span-4 last right">
+                                    {% if esquema_avances.fecha_ultimo_milestone %}
+                                        <span>Al {{ esquema_avances.fecha_ultimo_milestone }}</span>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                {# Start slider #}
+                                <div class="span-8 last slider-tab">
+                                    {% for foto in esquema_avances.avance.fotos.all %}
+                                        <div>
+                                            <div title="{{ foto.descripcion }}">
+                                                <img src="{{ foto.imagen.extra_thumbnails.preview }}" title="{{ foto.nombre }}" />
+                                            </div>
+                                            <div class="nombre">
+                                                <h3>{{ foto.nombre }}</h3>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    {% for video in esquema_avances.avance.videos.all %}
+                                        <div>
+                                            <div title="{{ video.descripcion }}">
+                                                {{ video.get_html_preview|safe }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="span-8 last"></div>
+                                {# End slider #}
+                                <div class="span-8 last">
+                                    {% if esquema_avances.porcentaje %}
+                                    <div class="span-7">
+                                        <div class="milestone_progressbar" value="{{ esquema_avances.porcentaje }}"></div>
+                                    </div>
+                                    <div class="span-1 last right">
+                                        <span>{{ esquema_avances.porcentaje }}%</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

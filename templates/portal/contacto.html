@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load form_display i18n %}
+
+{% block title %}{% blocktrans %}Contacto{% endblocktrans %}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/contacto.css" />
+
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.polygon_edit/areas_edit.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}usuarios/js/registro.js"></script>
+    <script type="text/javascript">
+        // Áreas de interés antes seleccionadas
+        var form_areas = [];
+        var num_form_areas = 0;
+        {% for area in formset_areas %}
+            form_areas[num_form_areas] = {
+                high_latitud: "{{ area.high_latitud.data }}".replace(",", "."),
+                low_latitud: "{{ area.low_latitud.data }}".replace(",", "."),
+                high_longitud: "{{ area.high_longitud.data }}".replace(",", "."),
+                low_longitud: "{{ area.low_longitud.data }}".replace(",", ".")
+            };
+            num_form_areas++;
+        {% endfor %}
+        var usuario;
+        {% if user.is_authenticated %}
+            usuario = {nombre: "{{ user.first_name }}",
+                       apellido: "{{ user.last_name }}",
+                       email: "{{ user.email }}"};
+        {% else %}
+            usuario = null;
+        {% endif %}
+    </script>
+{% endblock %}
+
+{% block body %}
+    <form id="form" method="post" action="">
+        <div class="span-24 last prepend-top">
+            <div class="span-11 form-registro">
+                <div class="span-11 last">
+                    <h2>{% blocktrans %}Contacto{% endblocktrans %}</h2>
+                    <table>
+                        {% display_as_table form %}
+                    </table>
+                    <h4>{% blocktrans %}Teléfono*{% endblocktrans %}</h4>
+                    <ul>
+                        {% for form_telefono in formset_telefonos %}
+                            <li class="telefono_li" id="li_telefono_0">
+                                <div class="base_telefono">{{ form_telefono }}</div>
+                            </li>
+                        {% endfor %}
+                        <img class="add_telefono" src="{{ STATIC_URL }}common/img/Mas-telefono.png" alt="+" title="{% blocktrans %}Nuevo teléfono{% endblocktrans %}"/>
+                        {{ formset_telefonos.management_form }}
+                    </ul>
+                </div>
+                <div class="span-11 last prepend-top">
+                    {% blocktrans %}Los campos marcados con * son obligatorios{% endblocktrans %}.
+                </div>
+                <div class="span-11 last prepend-top right">
+                    <input type="submit" value="Contacto" name="contacto_submit"/>
+                </div>
+                <div class="span-11 last prepend-top">
+                    <p><span class="bold">Número:</span> (054) 221028</p>
+                    <p><span class="bold">Dirección:</span> Calle Jacinto Ibañez 315 - Cercado</p>
+                </div>
+            </div>
+            <div class="span-12 last">
+                <div class="map">
+                    <span class="titulo">{% blocktrans %}Áreas de interés{% endblocktrans %}</span>
+                    <div>
+                        <a class="ayuda" href="{% url ayuda_areas %}"  target="_blank">{% blocktrans %}¿Cómo dibujar las áreas de interés?{% endblocktrans %}</a>
+                    </div>
+                    {{ formset_areas.management_form }}
+                    <div id="map_area" style="width:400px; height:300px"></div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

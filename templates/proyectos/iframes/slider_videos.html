@@ -1,0 +1,81 @@
+{% extends "proyectos/iframes/base_slider.html" %}
+
+{% load i18n %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}common/css/vertical_slider/style.css"/>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.vaccordion.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#va-accordion').vaccordion({
+                accordionW: 120,
+                accordionH: 310,
+                expandedHeight: 114,
+                visibleSlices: 4,
+                animOpacity: 0.6,
+                savePositions: false
+            });
+            if ($.browser.msie){
+              var v = parseInt($.browser.version,10);
+              if ( v == 7 || v == 8 ){
+                $('#va-accordion').vaccordion({
+                  accordionW:120,
+                  accordionH:329,
+                  expandedHeight:114,
+                  visibleSlices:4,
+                  animOpacity:0.6,
+                  savePositions: false
+                });
+              }
+            }
+            $(".slider-tab").css("height", 350);
+
+            var old_position = 1;
+            $('div.va-slice').click(function() {
+                var new_position = $(this).attr("position");
+                var desp = 350*(new_position - old_position);
+                if(desp > 0) {
+                    $(".slider-tab").animate({"scrollTop": "+=" + desp}, 400);
+                }
+                else{
+                    $(".slider-tab").animate({"scrollTop": "-=" + -1*desp}, 400);
+                }
+                old_position = new_position;
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="slider-tab">
+    {% for video in videos %}
+        <div>
+            <div title="{{ video.descripcion }}">
+                {{ video.get_html|safe }}
+            </div>
+        </div>
+    {% empty %}
+        {% blocktrans %}Aún no se han subido videos.{% endblocktrans %}
+    {% endfor %}
+    </div>
+
+    {% if videos %}
+    <div id="va-accordion" class="va-container">
+        <div class="va-nav">
+            <span class="va-nav-prev">{% blocktrans %}Anterior{% endblocktrans %}</span>
+        </div>
+        <div class="va-wrapper">
+        {% for video in videos %}
+            <div class="va-slice va-slice-{{ forloop.counter }}" id="{{ video.id }}" position={{ forloop.counter }}>
+                {{ video.get_thumbnail|safe }}
+            </div>
+        {% endfor %}
+        </div>
+        <div class="va-nav">
+            <span class="va-nav-next">{% blocktrans %}Siguiente{% endblocktrans %}</span>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

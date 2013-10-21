@@ -1,0 +1,154 @@
+{% extends "admin/base_site.html" %}
+{% load i18n groups %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% load adminmedia %}{% admin_media_prefix %}css/dashboard.css" /><link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin_index.css" />{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div id="content-main">
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="module">
+        <table summary="{% blocktrans with app.name as name %}Models available in the {{ name }} application.{% endblocktrans %}">
+        <caption><a href="{{ app.app_url }}" class="section">{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}</a></caption>
+	
+	<!-- Begin custom tools -->
+	{% comment %}
+	{% if app.name == 'Proyectos' %}
+            <tr>
+                <th scope="row"><a href="">Administrador Comercial</a></th>
+                <td><a href="{{ model.admin_url }}add/" class="addlink">{% trans 'Add' %}</a></td>
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+            </tr>	
+	{% endif %}
+	{% endcomment %}
+	<!-- End custom tools -->
+
+        {% for model in app.models %}
+            <tr>
+            {% if model.perms.change %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.perms.add %}
+                <td><a href="{{ model.admin_url }}add/" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.perms.change %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+    {% endfor %}
+
+	<!-- Begin custom emails views -->
+	{% BelongsToGroup user Comercial as hasPermission %}
+	{% if hasPermission %}
+        <div class="module">
+        <table>
+        <caption><a href="#" class="section">Correos</a></caption>
+
+        <tr>
+          <th scope="row"><a href="{% url admin:admin_proyecto_send_mail_to_user %}">Enviar a un usuario</a></th>
+          <td><a href="{% url admin:admin_proyecto_send_mail_to_user %}" class="emaillink">Enviar</a></td>
+        </tr>	
+	
+        <tr>
+          <th scope="row"><a href="{% url admin:admin_proyecto_send_mail_to_portalUser %}">Enviar a usuarios del portal</a></th>
+          <td><a href="{% url admin:admin_proyecto_send_mail_to_portalUser %}" class="emaillink">Enviar</a></td>
+        </tr>
+
+        <tr>
+          <th scope="row"><a href="{% url admin:admin_proyecto_send_mail_to_admins %}">Enviar a usuarios administrativos</a></th>
+          <td><a href="{% url admin:admin_proyecto_send_mail_to_admins %}" class="emaillink">Enviar</a></td>
+        </tr>	
+
+        </table>
+        </div>
+	{% endif %}
+	<!-- End custom emails views -->
+
+	<!-- Begin custom backup views -->
+	{% BelongsToGroup user Comercial as hasPermission %}
+	{% if hasPermission %}
+        <div class="module">
+        <table>
+        <caption><a href="#" class="section">Backups</a></caption>
+
+        <tr>
+          <th scope="row"><a href="{% url admin:admin_proyecto_customers_export 0 %}">Clientes todos (.csv)</a></th>
+          <td><a href="{% url admin:admin_proyecto_customers_export 0 %}" class="downloadlink" target="_blank" >Generar y Descargar</a></td>
+        </tr>
+
+        <tr>
+          <th scope="row"><a href="{% url admin:admin_proyecto_customers_export 1 %}">Clientes compradores (.csv)</a></th>
+          <td><a href="{% url admin:admin_proyecto_customers_export 1 %}" class="downloadlink" target="_blank" >Generar y Descargar</a></td>
+        </tr>
+
+        </table>
+        </div>
+	{% endif %}
+	<!-- End custom backup views -->
+
+
+{% else %}
+    {% if perms.auth.puede_help_desk %}
+        <div class="module">
+            <table>
+                <caption><a href="#" class="section">Ayuda en linea - Chat</a></caption>
+
+                <tr>
+                    <th scope="row">Ayuda en linea</th>
+                    <td><a href="{% url ayuda_clientes %}">Iniciar sesión</a></td>
+                </tr>
+            </table>
+        </div>
+    {% endif %}
+{% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'Recent Actions' %}</h2>
+        <h3>{% trans 'My Actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br/>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{% trans entry.content_type.name %}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}

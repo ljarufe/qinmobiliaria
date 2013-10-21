@@ -1,0 +1,106 @@
+{% load i18n %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}usuarios/css/login.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/popin.css" />
+
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}usuarios/js/login.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                {% if form.is_valid %}
+                    parent.location.reload();
+                {% endif %}
+
+                $(".login_button").click(function() {
+                    $("form").submit();
+                });
+            });
+        </script>
+    </head>
+
+    <body class="bg_transparent no-overflow">
+        <div class="contenedor">
+            <form action="" method="post">
+                <table>
+                    {{ form.as_table }}
+                </table>
+                <div class="forgot_pass">
+                    <span class="link recuperar_link">{% blocktrans %}Olvidé mi contraseña{% endblocktrans %}</span>
+                </div>
+
+                <!-- BEGIN: Facebook authentication -->
+                <div id="fb-root"></div>
+                <script>
+                    window.fbAsyncInit = function() {
+                        FB.init({
+                            appId      : '{{ fb_api_id }}',
+                            channelURL : '//{{ hostname }}{% url fb_channel %}', // Channel File
+                            status     : true,
+                            cookie     : true,
+                            xfbml      : true,
+                            oauth      : true
+                        });
+
+                        $(".fb-login-button").click(function() {
+                            FB.login(function(response) {
+                                if (response.authResponse) {
+                                    FB.api('/me', function(response) {
+                                        var data = {
+                                            id: response.id,
+                                            username: response.username,
+                                            first_name: response.first_name,
+                                            last_name: response.last_name,
+                                            email: response.email
+                                        };
+                                        var request = $.ajax({
+                                            url: "{% url json_registro %}",
+                                            type: "GET",
+                                            data: data,
+                                            dataType: "html"
+                                        });
+
+                                        request.done(function(msg) {
+                                            parent.location.reload();
+                                        });
+                                    });
+                                } else {
+                                    console.log('User cancelled login or did not fully authorize.');
+                                }
+                            }, {scope: 'email'});
+                        });
+                    };
+
+                    // Load the SDK Asynchronously
+                    (function(d){
+                        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+                        if (d.getElementById(id)) {return;}
+                        js = d.createElement('script'); js.id = id; js.async = true;
+                        js.src = "//connect.facebook.net/en_US/all.js";
+                        ref.parentNode.insertBefore(js, ref);
+                    }(document));
+                </script>
+                <div class="fb_div">
+                    <div class="fb-login-button">{% blocktrans %}Login con Facebook{% endblocktrans %}</div>
+                </div>
+                <!-- END: Facebook authentication -->
+
+                <div class="login_div">
+                    <span class="login_button boton">LOGIN</span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recuperar password -->
+        <div id="recuperar_pass" class="jqmWindow">
+            <h2>{% blocktrans %}Recuperar password{% endblocktrans %}</h2>
+            <!-- TODO: Modificar el ancho y alto -->
+            <iframe width="275" height="105" src="{% url recuperar_pass %}"></iframe>
+        </div>
+    </body>
+</html>

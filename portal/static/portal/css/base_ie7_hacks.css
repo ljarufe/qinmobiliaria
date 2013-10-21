@@ -1,0 +1,21 @@
+.box .panel_titulo{
+    padding-bottom:5px;
+    margin-bottom:0px;
+}
+.ver_mas{
+    display:block;
+    width: 48px;
+}
+div.base_telefono{
+    width: 350px;
+}
+div.base_telefono label{
+    position: relative;
+    top: -8px;
+}
+.table_ie_hack table{
+    width: 95% !important;
+}
+.noPadR{
+    padding-right:0px;
+}

@@ -1,0 +1,15 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bienvenido al rubro '{{rubro}}' de Quimera 
+Inmobiliaria, tu correo ha sido relacionado a este rubro para mantenerte al 
+día con acontecimientos que puedan ser de tu interés.
+</p>
+
+{% if rubro.texto_email %}
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{rubro.texto_email}}</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+    <p>
+        Hola {{ cliente.usuario.get_full_name }}, para confirmar tu registro en {{ sitio.domain }} haz click o copia el siguiente link:
+    </p>
+    <a href="http://{{ sitio.name }}/usuarios/verificar/{{ cliente.clave_activacion }}/">
+        http://{{ sitio.name }}/usuarios/verificar/{{ cliente.clave_activacion }}/
+    </a>
+{% endblock %}

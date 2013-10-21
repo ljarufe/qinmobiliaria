@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="span-24 last noticias_footer">
+    {% for noticia in noticias reversed %}
+        <div {% if forloop.first %}class="lastdiv"{% endif %}>
+            <h3>
+                {{ noticia.fuente.sitio_fuente.get_logo|safe }}
+                <a href="{{ noticia.get_absolute_url }}">{{ noticia.title }}</a>
+            </h3>
+            <a href="{{ noticia.get_absolute_url }}" class="ver_mas right">{% blocktrans %}Ver mas{% endblocktrans %}</a>
+        </div>
+    {% endfor %}
+</div>

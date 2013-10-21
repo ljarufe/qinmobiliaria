@@ -1,0 +1,216 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+    <!-- begin django admin date picker -->
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/core.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/widgets.css"/>
+    <script type="text/javascript">
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    {{form.media}}
+    <!-- end django admin date picker -->
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+
+    <script>
+      $(document).ready(function() {
+
+        $.fn.getItem = function(proyectoId,itemId) {
+          if (!proyectoId){
+            proyectoId = $("select[name=proyecto] option:selected").val();
+            itemId = 0
+          }
+          var request = $.ajax({
+           url: "{% url 'admin:admin_proyecto_ajax_get_item' %}",
+           type: "GET",
+           data: {id: proyectoId, itemId:itemId},
+           dataType: "json"
+                              });
+          request.done(function(res, status) {
+            $('select[name=item]').html(res['options']);
+          });          
+        }
+
+        {% if itemId %}
+          $(this).getItem({{proyecto_id}},{{itemId}});
+        {% endif %}
+
+        $('select[name=proyecto]').change(function(){
+          $(this).getItem();
+        });
+
+      })
+    </script>
+  <!-- end custom extra headers -->
+
+
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+<!-- Begin custom css -->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}usuarios/css/admin.css"/>
+<!-- End custom css -->
+{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Proyectos</a> &rsaquo;
+     <a href="../">Ofertas</a> &rsaquo;
+     {% trans "Add" %} oferta
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Add' %} Oferta</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{form.proyecto.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{form.proyecto.label_tag}}</td>
+	        <td>
+		  {{form.proyecto}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	    {{form.item.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+		<td><label for="id_item">Item</label></td>
+		<td>
+		  <select id="id_item" name="item">
+		    <option value="" selected="selected">---------</option>
+		  </select>
+  	          <br/>
+	          {{form.item.help_text}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{form.tasa_descuento.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{form.tasa_descuento.label_tag}}</td>
+	        <td>
+		  {{form.tasa_descuento}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{form.fecha_inicio.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{form.fecha_inicio.label_tag}}</td>
+	        <td>
+		  {{form.fecha_inicio}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{form.duracion.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{form.duracion.label_tag}}</td>
+	        <td>
+		  {{form.duracion}}
+  	          <br/>
+	          {{form.duracion.help_text}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{form.descripcion.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{form.descripcion.label_tag}}</td>
+	        <td>
+		  {{form.descripcion}}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+
+	  {{form.id}}
+
+	{% comment %}
+	{% for field in form %}
+	  {% if not field.is_hidden %}
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	  {{field.errors}}
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{field.label_tag}}</td>
+	        <td>
+		  {{field}}
+		  {% if field.help_text %}
+  	          <br/>
+	          {{field.help_text}}
+		  {% endif %}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+	  {% else  %}
+	  {{field}}
+	  {% endif %}
+	{% endfor %}
+	{% endcomment %}
+      </fieldset>
+
+
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	{% if not edit %}
+	<input type="submit" name="_addanother" value="{% trans 'Save and add another' %}">
+	<!-- <input type="submit" name="_continue" value="Guardar y Agregar más Datos"> -->
+	<input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}">
+
+	{% endif %}
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

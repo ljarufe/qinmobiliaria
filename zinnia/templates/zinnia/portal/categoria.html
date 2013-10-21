@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% load blocktags truncate zinnia_tags i18n %}
+
+{% block title %}{% blocktrans %}Categoria:{% endblocktrans %} {{ categoria.title }}{% endblock %}
+
+{% block body %}
+    <div class="span-23 box">
+        <div class="span-24 last">
+            <h1>{% blocktrans %}Categoría:{% endblocktrans %} {{ categoria.title }}</h1>
+            <p>{{ categoria.description }}</p>
+        </div>
+        <div class="span-15">
+            {% for entry in entries.object_list %}
+                <div class="span-15 last">
+                    <div class="span-4">
+                        <a href="{{ entry.get_absolute_url }}">
+                            <img src="{{ entry.image.extra_thumbnails.small_preview }}" title="{{ entry.title }}">
+                        </a>
+                    </div>
+                    <div class="span-11 last">
+                        <div class="span-11 last">
+                            <h2>
+                                <a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a>
+                            </h2>
+                            <div class="justify">
+                                {{ entry.content|safe|trunc_char:"200"|striptags|safe }}
+                            </div>
+                        </div>
+                        <div class="span-11 last prepend-top append-bottom right">
+                            <a href="{{ entry.get_absolute_url }}" class="ver_mas">{% blocktrans %}Ver mas{% endblocktrans %}</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if entries.object_list %}
+            <div class="span-15 last paginator">
+                {% paginator entries %}
+            </div>
+            {% else %}
+            <p>{% blocktrans %}No hay entradas para esta categoría{% endblocktrans %}</p>
+            {% endif %}
+        </div>
+        <div class="push-1 span-7 last">
+            <div class="span-7 last">
+                {% publicidad %}
+            </div>
+            <div class="span-7 last">
+                <div id="widget-tags" class="widget">
+                    <h2>{% blocktrans %}Temas{% endblocktrans %}</h2>
+                    {% get_tag_cloud %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

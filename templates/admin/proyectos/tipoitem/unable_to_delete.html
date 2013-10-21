@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+     <a href="{% url admin:index %}">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:app_list 'proyectos' %}">Proyectos</a> &rsaquo; 
+     <a href="{% url admin:proyectos_tipoitem_changelist %}">Tipos de item</a> &rsaquo; 
+     {% trans 'Delete' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <p>{% if numRelItems > 1 %}No se pueden borrar los tipos de item seleccionados porque los siguientes tipos de item están relacionados a items{% else %}No se puede borrar el tipo de item seleccionado porque está relacionado a items{% endif %}:
+      {% for i,li in related_items %}
+      <ul>
+	<li>Tipo de Item: {{ i }}<br/>Items relacionados:
+	  <ul>{{ li|unordered_list }}</ul>
+	</li>
+      </ul>
+      {% endfor %}
+    </p>
+    <p><a href='{% url admin:proyectos_tipoitem_changelist %}'>Volver a la lista de Tipos de item</a>
+    </p>
+
+{% endblock %}

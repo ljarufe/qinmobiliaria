@@ -1,0 +1,131 @@
+{% extends "chat_base.html" %}
+
+{% load i18n %}
+
+{% block title %}Ayuda con el área {{ area }}{% endblock %}
+
+{% block head %}
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/ayuda_en_linea.css" />
+    <script type="text/javascript">
+        var sender = "{{ usuario }}";
+        var destination = "/{{ manager.usuario }}/{{ usuario }}";
+        var manager_name = "{{ manager.usuario }}";
+
+        var url_send_message = "{% url send_message %}";
+        var url_manager_request = "{% url manager_request %}";
+
+        Orbited.settings.port = {{ port }};
+	    Orbited.settings.hostname = document.domain;
+        TCPSocket = Orbited.TCPSocket;
+
+        function manager(msg, stomp) {
+            switch(msg['code']) {
+                case 1:
+                    break;
+                case 2:
+                    var $_input = $("#input_box");
+                    $_input.append("<p>" + msg["sender"] + ": " + msg["message"] + "</p>");
+                    $_input.animate({ scrollTop: $_input.prop("scrollHeight") - $_input.height() }, 1000);
+                    if(!window.isActive) {
+                        $("#audio")[0].load();
+                        $("#audio")[0].play();
+                    }
+                    break;
+                default:
+                    alert("??");
+            }
+        }
+
+        function send_message() {
+            var message = $("#message").val();
+            $("#message").val("");
+            $.post(url_send_message,
+                {"message": message,
+                "sender": sender,
+                "destination": destination});
+        }
+
+        $(document).ready(function() {
+            // Las alertas se dan sólo cuando la ventana está inactiva
+            window.isActive = true;
+            $(window).focus(function() { this.isActive = true; });
+            $(window).blur(function() { this.isActive = false; });
+
+            stomp = new STOMPClient();
+
+            stomp.onopen = function(){
+                $("#status").html("Conectando...");
+            };
+
+            stomp.onclose = function(c){
+                $("#status").html("Error: " + c);
+            };
+
+            stomp.onerror = function(error){
+                $("#status").html("Error: " + error);
+            };
+
+            stomp.onerrorframe = function(frame){
+                $("#status").html("Error: " + frame);
+            };
+
+            stomp.onconnectedframe = function(){
+                $("#status").html("Suscribiendo al canal...");
+                // Enviar un request al manager
+                stomp.subscribe("/" + manager_name);
+                $.post(url_manager_request, {"sender": sender, "manager": manager_name});
+                // Subscripción al canal exclusivo manager/cliente
+                stomp.subscribe(destination);
+                $("#status").html("Conectado");
+            };
+
+            stomp.onmessageframe = function(frame){
+                manager(JSON.parse(frame.body), stomp);
+            };
+
+            stomp.connect(document.domain, 61613);
+
+            // Enviar un mensaje con el botón o con enter
+            $("#message").keyup(function(event) {
+                var key = event.keyCode;
+                if(key == 13) {
+                    send_message();
+                }
+            });
+
+            $("#send").click(function() {
+                send_message();
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="span-13 box">
+        <div class="span-13 last">
+            <div class="span-12">
+                <div class="title">{% blocktrans %}Chat de ayuda con el área:{% endblocktrans %} {{ area }}</div>
+            </div>
+            <div class="span-1 last right">
+                <img id="sonido" src="{{ STATIC_URL }}common/img/Audio on.png" title="{% blocktrans %}Desactivar sonido{% endblocktrans %}">
+            </div>
+        </div>
+        <div class="span-13 last">
+            <div class="span-13 last">
+                {% blocktrans %}Estado:{% endblocktrans %} <span id="status"></span>
+                <div id="input_box"></div>
+            </div>
+            <div class="span-13 last">
+                <div class="span-9">
+                    <label>
+                        <textarea id="message"></textarea>
+                    </label>
+                </div>
+                <div class="span-4 last right">
+                    <button id="send" class="boton">{% blocktrans %}Enviar{% endblocktrans %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

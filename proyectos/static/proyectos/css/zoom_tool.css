@@ -1,0 +1,88 @@
+body{
+    position: relative;
+    margin: 0px;
+}
+div#moveLeft{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_iz_es.png');
+    background-repeat: no-repeat;
+    right:420px;
+    top: 42px;
+    display: block;
+    width: 22px;
+    height: 21px;
+    position: absolute;
+}
+div#moveLeft:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_iz_so.png);
+    cursor: pointer;
+}
+div#moveRight{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_der_es.png');
+    background-repeat: no-repeat;
+    right:370px;
+    top: 42px;
+    display: block;
+    width: 22px;
+    height: 21px;
+    position: absolute;
+}
+div#moveRight:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_der_so.png);
+    cursor: pointer;
+}
+div#moveUp{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_ar_es.png');
+    background-repeat: no-repeat;
+    right:395px;
+    top: 21px;
+    display: block;
+    width: 22px;
+    height: 21px;
+    position: absolute;
+}
+div#moveUp:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_ar_so.png);
+    cursor: pointer;
+}
+div#moveDown{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_ab_es.png');
+    background-repeat: no-repeat;
+    right:395px;
+    top: 63px;
+    display: block;
+    width: 22px;
+    height: 21px;
+    position: absolute;
+}
+div#moveDown:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_ab_so.png);
+    cursor: pointer;
+}
+div#zoomIn{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_in_es.png');
+    background-repeat: no-repeat;
+    right:411px;
+    top: 95px;
+    display: block;
+    width: 22px;
+    height: 22px;
+    position: absolute;
+}
+div#zoomIn:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_in_sob.png);
+    cursor: pointer;
+}
+div#zoomOut{
+    background-image: url('../img/perfil/botoneszoom/bot_zoom_out_es.png');
+    background-repeat: no-repeat;
+    right:379px;
+    top: 95px;
+    display: block;
+    width: 22px;
+    height: 22px;
+    position: absolute;
+}
+div#zoomOut:hover{
+    background-image: url(../img/perfil/botoneszoom/bot_zoom_out_so.png);
+    cursor: pointer;
+}

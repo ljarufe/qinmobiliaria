@@ -1,0 +1,52 @@
+/* begin editar plano */
+div.submit-row div#text_instrucciones{
+    text-align: left !important;
+}
+div.posRelative{
+    position: relative;
+}
+
+a.formDeleteLink{
+    position: relative;
+    right: 5px;
+    top: 5px;
+}
+div.zoom-tool{
+    /* position: relative; */
+}
+div.zoom-tool img{
+    cursor: pointer;
+    box-shadow: inset 0 0 15px 8px #6386AE, 0 0 5px 3px #6386AE;
+    position: absolute;
+    padding-top: 5px;
+}
+div.zoom-tool img:hover{
+    box-shadow: inset 0 0 12px 8px #8ED3FF, 0 0 8px 7px #8ED3FF;
+    z-index:1;
+}
+img#moveLeft{
+    left: 20px;
+    top: 75px;
+}
+img#moveUp{
+    left: 50px;
+    top: 45px;
+}
+img#moveRight{
+    left: 80px;
+    top: 75px;
+}
+img#moveDown{
+    left: 50px;
+    top: 105px;
+}
+img#zoomIn{
+    left: 30px;
+    top: 155px;
+}
+img#zoomOut{
+    left: 70px;
+    top: 155px;
+}
+
+/* end editar plano */

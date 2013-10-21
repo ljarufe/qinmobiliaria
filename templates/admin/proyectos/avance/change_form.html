@@ -1,0 +1,204 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia groups %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+
+    <script>
+      
+      $(document).ready(function() {
+
+        $.fn.getEtapas = function(proyectoId,etapaId) {
+          if (!proyectoId){
+            proyectoId = $("select[name=proyecto] option:selected").val();
+            etapaId = 0
+          }
+          var request = $.ajax({
+           url: "{% url 'admin:admin_avance_ajax_get_etapas' %}",
+           type: "GET",
+           data: {id: proyectoId, etapaId:etapaId},
+           dataType: "json"
+                              });
+          request.done(function(res, status) {
+            $('select[name=etapa]').html(res['options']);
+          });          
+        }
+
+        $.fn.getSubEtapas = function(etapaId, subetapaId) {
+          if (!etapaId){
+            etapaId = $("select[name=etapa] option:selected").val();
+            subetapaId = 0
+          }
+          var request = $.ajax({
+           url: "{% url 'admin:admin_avance_ajax_get_subetapas' %}",
+           type: "GET",
+           data: {id: etapaId, subetapaId:subetapaId},
+           dataType: "json"
+                              });
+          request.done(function(res, status) {
+            $('select[name=subetapa]').html(res['options']);
+          });          
+        }
+
+        {% if etapa %}
+          $(this).getEtapas({{proyecto_id}},{{etapa}});
+          $(this).getSubEtapas({{etapa}},{{subetapa}});
+        {% endif %}
+
+        $('select[name=proyecto]').change(function(){
+          $(this).getEtapas();
+        });
+
+        $('select[name=etapa]').change(function(){
+          $(this).getSubEtapas();
+        });
+
+      })
+    </script>
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+<!-- Begin custom css -->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+<!-- End custom css -->
+{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Proyectos</a> &rsaquo;
+     <a href="../">Avances</a> &rsaquo;
+     {% trans "Add" %} Avance
+
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Add' %} Avance</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+	{{form.proyecto.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.proyecto.label_tag}}</td>
+	      <td>
+		{{form.proyecto}}
+		{{form.id}}
+		{% if form.proyecto.help_text %}
+  	        <br/>
+	        {{form.proyecto.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+	{% comment %}{{form.etapa.errors}}{% endcomment %}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td><label for="id_etapa">Etapa</label></td>
+	      <td>
+		<select id="id_etapa" name="etapa">
+		  <option value="" selected="selected">---------</option>
+		</select>
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+	{% comment %}{{form.subetapa.errors}}{% endcomment %}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td><label for="id_subetapa">SubEtapa</label></td>
+	      <td>
+		<select id="id_subetapa" name="subetapa">
+		  <option value="" selected="selected">---------</option>
+		</select>
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+	{{form.notas.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.notas.label_tag}}</td>
+	      <td>
+		{{form.notas}}
+		{% if form.notas.help_text %}
+  	        <br/>
+	        {{form.notas.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+
+	{% BelongsToGroup user Comercial as hasPermission %}
+	{% if hasPermission %}
+	{{form.estado.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.estado.label_tag}}</td>
+	      <td>
+		{{form.estado}}
+		{% if form.estado.help_text %}
+  	        <br/>
+	        {{form.estado.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+	
+	{% endif %}
+
+      </fieldset>
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	{% if not edit %}
+	<input type="submit" name="_addanother" value="{% trans 'Save and add another' %}">
+	<input type="submit" name="_continue" value="Guardar y Agregar más Datos">
+	{% endif %}
+	<!-- <input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}"> -->
+      </div>
+    </div>
+  </form>
+  {%  if created or edit %}
+  <div class='proyecto-form-part2'>
+    <iframe name='add_fotos' class='fotos_videos' src="{% url 'admin:admin_avance_add_fotos' avance_id %}"></iframe>
+    <iframe name='add_videos' class='fotos_videos' src="{% url 'admin:admin_avance_add_videos' avance_id %}"></iframe>
+    <iframe name='add_milestones' class='milestone' src="{% url 'admin:admin_avance_add_milestones' avance_id %}"></iframe>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

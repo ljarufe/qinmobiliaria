@@ -1,0 +1,79 @@
+body {
+    margin: 0;
+}
+.iehack {
+    position: relative;
+}
+.slider-tab {
+    overflow: hidden;
+}
+.slider-tab .nombre {
+    padding: 2px 15px 5px 15px;
+    background: black;
+    opacity: 0.5;
+    text-align: right;
+    margin-top: -30px;
+    font-size: 16px;
+    font-weight: bold;
+}
+.slider-tab h3 {
+    margin: 0;
+    line-height: normal;
+    margin-bottom: 0;
+    color: #ffff99;
+    font-size: 19px;
+}
+.nav {
+    position: absolute;
+    top: 120px;
+    font-size: 55px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #f03856;
+    opacity: 0.6;
+    display: none;
+}
+.nav:hover {
+    color: white;
+}
+.prev {
+    left: 5px;
+}
+.next {
+    left: 550px;
+}
+.va-container {
+    position: absolute;
+    top: 0;
+    left: 466px;
+}
+/* hacks any firefox */
+@-moz-document url-prefix(){
+    .va-container {left: 464px !important ;}
+    .next {left: 530px;}
+    .slider-tab .nombre {width: 554px;}
+    div.sliderImg {width: 584px;}
+    div.sliderImg img {width: 584px;}
+}
+/* hacks only for opera */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+    head~body .va-container {left:464px !important;}
+    head~body .next {left:530px;}
+    head~body .slider-tab .nombre {width: 554px;}
+    head~body div.sliderImg {width: 584px;}
+    head~body div.sliderImg img {width: 584px;}
+}
+/* hacks ie8 ie9  */
+.va-container {left: 464px !important\0/;}
+.next {left: 550px\0/;}
+.slider-tab .nombre {width: 554px\0/;}
+div.sliderImg {width: 585px\0/;}
+div.sliderImg img {width: 585px\0/;}
+/* hacks ie7 */
+/* *+html .va-container {left: 464px !important;} */
+/* *+html .next {left: 550px;} */
+/* *+html .slider-tab .nombre {width: 555px;} */
+/* *+html div.sliderImg {width: 585px;} */
+/* *+html div.sliderImg img {width: 585px;} */
+
+

@@ -1,0 +1,81 @@
+{% load i18n thumbnail %}
+
+<html>
+  <head>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}proyectos/css/slider_planos.css"/>
+    <!--[if IE 7]><link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/slider_planos_ie7_hacks.css"><![endif]-->
+    <!--[if IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/slider_planos_ie8_hacks.css"><![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/vertical_slider/style.css"/>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.vaccordion.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+
+        $('#va-accordion').vaccordion({
+          accordionW:120,
+          accordionH:270,
+          expandedHeight:114,
+          visibleSlices:4,
+          animOpacity:0.6,
+          savePositions: false
+        });
+        if ($.browser.msie){
+          var v = parseInt($.browser.version,10)
+          if ( v == 7 || v == 8 ){
+            $('#va-accordion').vaccordion({
+              accordionW:120,
+              accordionH:309,
+              expandedHeight:114,
+              visibleSlices:4,
+              animOpacity:0.6,
+              savePositions: false
+            });
+          }  
+        }
+
+
+        $('div.va-slice').click(function(){
+          $('iframe[name="plano"]').attr('src',
+                                         '../../planos/'+$(this).attr('id'));
+        });
+
+      });
+    </script>
+
+  </head>
+  <body>
+    {% if planos %}
+    <div class="column-1 span-1 last">
+        <iframe src="{% url proyectos_planos planos.0.id %}" height="350px" width="464px" name="plano" marginheight="0px" margingwidth="0px" scrolling="no"></iframe>
+    </div>
+    <div class="column-2 span-1 last">
+      <div class="va-container">
+
+	<div id="va-accordion" class="va-container">
+	  <div class="va-nav">
+	    <span class="va-nav-prev">{% blocktrans %}Anterior{% endblocktrans %}</span>
+	  </div>
+
+	  <div class="va-wrapper">	  
+	    {% for p in planos %}
+	    {% thumbnail p.plano 100x100 crop as thumb %}
+	    <div class="va-slice va-slice-{{forloop.counter}}" id="{{p.id}}">
+	      <img src="{{thumb}}" >
+	    </div>
+	    {% endfor %}
+	  </div>
+	  <div class="va-nav">
+	    <span class="va-nav-next">{% blocktrans %}Siguiente{% endblocktrans %}</span>
+	  </div>
+	</div>
+
+      </div>
+    </div>
+    {% else %}
+      {% blocktrans %}Este proyecto todavía no ha subido planos{% endblocktrans %}.
+    {% endif %}
+  </body>
+</html>

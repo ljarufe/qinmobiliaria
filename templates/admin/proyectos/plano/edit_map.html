@@ -1,0 +1,651 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}proyectos/js/raphael-min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+
+
+{% comment %}
+1: dibujar las regiones
+  * se inicia cuando se da clic en el boton dibujar item
+  * el usuario delimita la region con puntos
+  * al apretar el boton 'cerrar area' se cierran los puntos con lineas y se
+    despliega el formulario de nuevo item.
+  * al poner guardar se refresca el frame y se muestra el area delimitada por 
+    los puntos. De manera q mientras edita mas regiones van apareciendo en el 
+    plano. 
+  * cuando se hace click sobre una region debe saltar el popin de editar.
+  * Cuando se termina de crear regiones se debe apretar el boton crear imagen
+    del plano, para que se genere una imagen que sera incluida en los pdf's. 
+    El portal va mostrar los planos con js :D
+{% endcomment %}
+<script type="text/javascript">
+  $(document).ready(function() {      
+    {% thumbnail plano.plano 800x800 quality=100 upscale as thumb %}
+    var paper = Raphael("plano", {{thumb.width}}, {{thumb.height}});
+    //var imgPlano =paper.image('{{thumb}}',0,0,{{thumb.width}},{{thumb.height}});
+    //usando la imagen subida con las dimensiones ajustadas a 800x800
+    //esto para que al hacer zoom se mantenga la mayor calidad posible
+  var imgPlano =paper.image('{{plano.plano.url}}',0,0,{{thumb.width}},{{thumb.height}});
+    var newRegion = [];
+    var listPoints = [];//lista de puntos azules de todas las regiones (paths)
+    var list_poligons = []; //lista de todos los poligonos dibujados
+    var polColors = []; //lista de colores correspondientes de los poligonos
+    var itemList = []; //lista de ids de los objetos items
+    var newRegionFeatures = {fill: '#0033FF', opacity: 0.4};
+    var zoomOutProportion = 0.75;//proporcion en que se hace zoom out
+    var zoomInProportion = 1.25;//proporcion en que se hace zoom in
+    var zoomReverseTotal = 1.0;//
+    var scrollLeft = [50,0];
+    var scrollRight = [-50,0];
+    var scrollUp = [0,50];
+    var scrollDown = [0,-50];
+    var zoomTotal = 1.0;//valor acumulado de zooms
+    var scrollTotal = [0.0,0.0];//valor acumulado de scrolls respecto 
+    var scrollReverseTotal = [0.0,0.0];
+    //var zoomingDifference = [0.0,0.0];
+
+    {% if itemList %}
+      {% for id in itemList %}
+        itemList.push('{{id}}');
+      {% endfor %}
+    {% endif%}
+
+    //handler de cuando se pone el mouse sobre un path
+    var pathClick = function (event) {
+        //alert(this.data("item_id"));
+        var win = window.open(
+                          '../../item/'+this.data("item_id")+'/?_popup=1',
+                          'editar item',
+                          'height=500,width=800,resizable=yes,scrollbars=yes');
+        win.focus();
+    }
+
+    //define las interactividad de un path(region)
+    Raphael.el.pathInteractivity = function (mouseOutColor){
+      this.mouseover(function(){
+        this.attr({cursor:'pointer', fill:'#0033FF'});      
+      });
+      this.mouseout(function(){
+        this.attr({fill: mouseOutColor, opacity: 0.4});
+      });
+      this.click(pathClick);
+    };
+
+    //remueve la interactividad de un path(region)
+    Raphael.el.pathRemoveInteractivity = function (regionColor){
+      this.mouseover(function(){
+        this.attr({cursor:'default', fill:regionColor});
+      });
+      this.unclick(pathClick);
+    };
+
+    //remueve la interactividad de todos los paths (regiones)
+    $.fn.removePathsInteractivity = function (){
+      for (x in list_poligons){
+        list_poligons[x].pathRemoveInteractivity(polColors[x]);
+      }
+    };    
+
+    //hace que un circulo se pueda arrastrar
+    //redibujar el path relacionado al circulo
+    Raphael.el.makeDraggable = function (){
+      this.attr({ cursor : 'move' });
+      var x,y;
+      var punto = this;
+      point.drag(function(dx,dy) {
+//                   this.attr({cx: Math.min(Math.max(x + dx, 0),{{thumb.width}}),
+//                              cy: Math.min(Math.max(y + dy, 0),{{thumb.height}})
+//                             });
+                   this.attr({cx: Math.min(Math.max(x + dx, 0-scrollTotal[0]),{{thumb.width}}-scrollTotal[0]),
+                              cy: Math.min(Math.max(y + dy, 0-scrollTotal[1]),{{thumb.height}}-scrollTotal[1])
+                             });
+
+                 }, function(){
+                      x = this.attr('cx');
+                      y = this.attr('cy');
+                 }, function(){
+                    var poligon_position = this.data('list_id');
+                    var cx = this.attr('cx');
+                    var cy = this.attr('cy');
+                    var originalCoordinates=this.data("originalCoordinates");
+                    var realCoordinates=this.realCoordinates();
+                    var request = $.ajax({
+                        url: "{% url admin:admin_plano_update_punto %}",
+                        type: "POST",
+                        data: {plano_id:{{plano_id}},
+                               poligono:poligon_position,
+                               x_old:originalCoordinates[0],
+                               y_old:originalCoordinates[1],
+                               x_new:realCoordinates[0],
+                               y_new:realCoordinates[1]
+                              }, 
+                        dataType: "json"
+                                         });
+                    request.done(function(res, status) {
+                      if (status == 'success' && res['response'] == 'ok'){
+                        var p = list_poligons[poligon_position];
+                        //p.hide();
+                        var item_id = p.data("item_id");
+                        p = paper.path(p.attr('path').toString().replace(
+                            x+','+y,cx+','+cy)).attr(
+                            {fill: polColors[poligon_position], opacity: 0.4}
+                                                                        );
+                        //trasladando el poligono redibujado
+                        var translation_figure = '...t'+scrollTotal[0]+','+scrollTotal[1];
+                        p.transform(translation_figure);
+
+                        list_poligons[poligon_position].remove();
+                        delete list_poligons[poligon_position];
+                        p.data("item_id",item_id);
+                        punto.toFront();
+                        punto.data("originalCoordinates",punto.realCoordinates());
+                        p.pathInteractivity(polColors[poligon_position]);
+                        list_poligons[poligon_position] = p;              
+                      }
+                    });
+
+                 }
+      );
+    };
+
+    //dibuja un circulo en las coordenadas x,y y lo anhade a la lista de puntos
+    // li
+    $.fn.drawPoint = function (x,y,li,r,fillColor,draggable, list_id) {
+        if (!r){
+          r = 5;
+        }
+        if (!fillColor){
+          fillColor = '#FF0000';
+        }
+        var size = '1px';
+        point = paper.circle(x,y,r).attr({fill: fillColor});
+        if (draggable){
+          point.makeDraggable();
+        }else{
+          if(draggable == false){
+            point.hide();
+          }
+        }
+        if (list_id || list_id == 0){
+          point.data('list_id',list_id);
+        }
+        //alert(point.attr('cx')+','+point.attr('cy'));
+        li.push(point);
+        //alert('caraxo');
+        return point;
+        //alert(point.attr('cx'));
+    };
+
+    //dibuja una region a partir de una lista de puntos (objetos circle)
+    //pone los puntos al frente del path (region sombreada)
+    //si click es true, le asigna interactividad
+    //si recibe itemLisPosition trata de agregar el contenido de itemList
+    //en la posicion itemLisPosition a los datos del path como 'item_id'
+    $.fn.drawRegion = function (l, features, click, itemListPosition) {
+        if (!features){
+          features = newRegionFeatures;
+        }
+        var regionPath = '';
+        for (x in l){
+          if (x == 0){
+            regionPath += 'M';
+          }else{
+            regionPath += 'L';
+          }
+          regionPath += l[x].attr('cx')+','+l[x].attr('cy');  
+        }
+        regionPath += 'Z';
+        path = paper.path(regionPath).attr(features);
+
+        for (x in l){
+          l[x].toFront();
+        }
+
+        if (click && click == true){
+          path.pathInteractivity(features['fill']);
+        }
+
+        try{
+          path.data("item_id", itemList[itemListPosition]);
+        }catch(err){
+        }
+
+        return path
+    }
+
+    //esconde todos lo puntos de las regiones ya creadas
+    $.fn.hideAllDraggablePoints = function (){
+      for (x in listPoints){
+        listPoints[x].hide();
+      }
+    }
+
+  //para q un area sea draggable, de alguna manera se debe saber a que 
+  //lista de puntos(poligon) pertenece el punto q se mueve.
+  // al terminar de mover el punto se debe actualizar la lista y redibujarse
+    {% if polColors %}
+      {% for color in polColors %}
+        polColors.push('{{color}}');
+      {% endfor %}
+    {% endif %}
+
+    {% if poligons %}
+      var li = [];
+      var path = '';
+      var punto = '';
+      var pX = 0.0;
+      var pY = 0.0;
+      {% for poligon in poligons %}
+        li = []
+        {% for point in poligon %}
+          //alert("{{point.1|floatformat:10}}");
+          pX = parseFloat("{{point.0}}".replace(',','.'));
+          pY = parseFloat("{{point.1}}".replace(',','.'));
+          punto =$(this).drawPoint(
+                            pX,pY,li,3,'#0033FF',
+                            {% if form.errors %}false{% else %}true{% endif %}, 
+                            {{forloop.parentloop.counter0}}
+                                  );
+          //establece en una variable en 'punto' la posicion inicial con que
+          //esta grabada en la DB
+          point.data("originalCoordinates",[pX,pY]);
+
+          listPoints.push(punto);
+        {% endfor %}
+        path = $(this).drawRegion(
+                             li,
+                             {fill: polColors[{{forloop.counter0}}],
+                              opacity: 0.4},
+                             {% if form.errors %}false{% else %}true{% endif %},
+                             li[0].data('list_id')
+                                 );
+        //carajo
+        list_poligons.push(path);
+      {% endfor %}
+    {% endif %}
+
+    {% if form.errors %}
+      $('div#addItem').show('slow');
+      $('div#DrawButton').hide('slow');
+      var regionPath = ''
+      {% for point in coordList  %}
+        $('form#addItemForm').append('<input id="id_{{forloop.counter0}}" type="hidden" name="{{forloop.counter0}}" value="{{point.0}},{{point.1}}">');
+        $(this).drawPoint({{point.0}},{{point.1}}, newRegion);
+        if ({{forloop.counter0}} == 0){
+          regionPath += 'M';
+        }else{
+          regionPath += 'L';
+        }
+        regionPath += '{{point.0}},{{point.1}}';  
+      {% endfor %}
+      regionPath += 'Z';
+      paper.path(regionPath).attr(newRegionFeatures);
+    {% endif %}
+
+    //si esta presente esconde el mensaje de item borrado para que no afecte
+    //la posicion Y
+    //quita la interactividad de las regiones
+    //esconde todo los puntos arrastrables
+    //inicia el proceso de dibujar y cerrar una nueva region
+    $.fn.startDrawing = function () {
+      $('ul#mensajeItem').hide('slow');
+      $(this).removePathsInteractivity();
+      $(this).hideAllDraggablePoints();
+      $('input#start_drawing').hide('slow');
+      $('input#draw_image').hide('slow');
+      $('div#text_instrucciones').show('slow');
+      imgPlano.attr({cursor: 'crosshair'});
+      //guarda y dibuja los punto de la nueva region
+      $('div#plano').click(function (event) {
+        mouseX = event.pageX - this.offsetLeft - 1;
+        mouseY = event.pageY - this.offsetTop;
+        $(this).drawPoint(mouseX,mouseY,newRegion);
+      });
+      
+      //valida que la region este delimitada con por lo menos 3 puntos
+      //cierra los puntos, agrega los puntos al form, sombrea la nueva region,
+      //detiene el procesos de capturar puntos  y despliega el formulario 
+      //para agregar el nuevo item
+      $('div#plano').mousedown(function (event){
+        if (event.which == 3){
+          if (newRegion.length < 3){
+	    alert('La region debe tener por lo menos 3 puntos');
+	  }else{
+            //paper.path("M10,10L90,90L90,20Z");
+            event.preventDefault();
+	    imgPlano.attr({cursor: 'default'});
+            var regionPath = '';
+	    var coordinate = '';
+            for (x in newRegion){
+               if (x == 0){
+                 regionPath += 'M';
+               }else{
+                 regionPath += 'L';
+               }
+	       coordinate = newRegion[x].attr('cx')+','+newRegion[x].attr('cy');
+	       regionPath += coordinate;
+	       coordinate = newRegion[x].realCoordinates();
+               coordinate = numDecimals(coordinate[0]-scrollReverseTotal[0],10)+','+numDecimals(coordinate[1]-scrollReverseTotal[1],10);
+	       //regionPath += coordinate;
+
+               $('form#addItemForm').append('<input id="id_'+x+'" type="hidden" name="'+x+'" value="'+coordinate+'">');
+
+            }
+            regionPath += 'Z';
+            paper.path(regionPath).attr(newRegionFeatures);
+
+            $(this).unbind('click');
+            $(this).unbind('mousedown');
+
+            $('div#addItem').show('slow');
+            $('div#DrawButton').hide('slow');			 
+	  }				 
+        }
+      });
+      return '';
+    };
+
+    $('input#start_drawing').click(function(event) {
+      event.preventDefault();
+      //alert(event.pageX +','+ event.pageY);
+      $(this).startDrawing();
+    });
+
+    $('input#draw_image').click(function(event) {
+      event.preventDefault();
+
+                    var request = $.ajax({
+                        url: "{% url admin:admin_plano_update_plano_dibujado %}",
+                        type: "POST",
+                        data: { plano_id:{{plano_id}} }, 
+                        dataType: "json"
+                                         });
+                    request.done(function(res, status) {
+                      if (status == 'success' && res['response'] == 'ok'){
+	                $('ul#image_plano_updated').show('slow');
+                      }
+                    });
+
+
+    });
+
+    //----------------------------FUNCIONES DE ZOOM--------------------------
+
+    //retorna la lista de puntos de un objecto Path
+    Raphael.el.getListPath = function (){
+      var listPath = [];
+      p = this.attr('path');
+      for (i in p){
+	listPath[i] = [p[i][1],p[i][2]];
+      }
+      return listPath
+    }
+
+    //funcion que es llamada desde una region (path) que permite redibujarla 
+    //segun un nuevo centro de plano y una proporcion
+    Raphael.el.redrawRegionWithZoom = function (newCenter,proporcion) {
+      //obtener la lista de puntos del path
+      var list_points = this.getListPath();
+      //calcular los nuevos puntos
+      for (i in list_points){
+	list_points[i][0] = (list_points[i][0]*proporcion)+newCenter[0];
+	list_points[i][1] = (list_points[i][1]*proporcion)+newCenter[1];
+      }
+      //redibujar poligono
+        var regionPath = '';
+        for (x in list_points){
+          if (x == 0){
+            regionPath += 'M';
+          }else{
+            regionPath += 'L';
+          }
+	  regionPath += list_points[x][0]+','+list_points[x][1];
+        }
+        regionPath += 'Z';
+	this.attr({path:regionPath});
+    };
+	
+    //redibuja todos los puntos(azules) en sus nuevas ubicaciones
+    var movePoints = function (newCenter,proporcion){
+      var newX = 0.0;
+      var newY = 0.0;
+      for (i in listPoints){
+	newX = listPoints[i].attr('cx')*proporcion+newCenter[0];
+        newY = listPoints[i].attr('cy')*proporcion+newCenter[1];
+	listPoints[i].attr({cx:newX, cy:newY});
+      }
+    };
+
+    //limita el numero de decimales sin redondear
+    var numDecimals = function(number,num_decimals){
+      var base =Math.pow(10,num_decimals);
+      return Math.floor(number*base)/base;
+    };
+
+    //funcion que es llamada desde un punto que calcula su ubicacion 
+    //en el plano sin ningun zoom, esto para guardar en la DB los puntos
+    //realiza las misma operaciones de zoom pero ahora con el 
+    //fin de transformar las coordenadas actuales en las coordenadas 
+    //del plano sin ningun zoom
+    Raphael.el.realCoordinates = function () {
+      //var factor = (1-zoomReverseTotal)*zoomTotal/2;
+      var factor = (1-zoomReverseTotal)/2;
+	//alert(zoomTotal+'; '+zoomReverseTotal+';'+factor);
+      var newCenter = [{{thumb.width}}*factor,{{thumb.height}}*factor];
+      //alert({{thumb.width}}+';'+{{thumb.height}}+';'+this.attr('cx')+';'+this.attr('cy')+';'+zoomReverseTotal+';'+newCenter);
+      return [numDecimals( (this.attr('cx')*zoomReverseTotal)+newCenter[0],10 ),
+	      numDecimals( (this.attr('cy')*zoomReverseTotal)+newCenter[1],10 ) 
+	     ];
+    };
+
+    //funcion que hace zoom segun la proporcion dada
+    var zoom = function(proportion){
+      imgPlano.transform("...s"+proportion);
+      var newCenter = [];
+      var factor = (1-proportion)/2;
+      newCenter = [{{thumb.width}}*factor,{{thumb.height}}*factor];
+      movePoints(newCenter,proportion);
+      for (x in list_poligons){
+	list_poligons[x].redrawRegionWithZoom(newCenter,proportion);
+      }
+      ////////////////////////
+      //if (scrollReverseTotal[0] != 0.0 & scrollReverseTotal[1] != 0.0){
+      //zoomingDifference[0] += {{thumb.width}}*zoomTotal*(1-proportion)/2;
+      //zoomingDifference[1] += {{thumb.height}}*zoomTotal*(1-proportion)/2;
+      //}
+      ///////////////////////
+      zoomTotal*=proportion;
+      zoomReverseTotal*=(1/proportion);
+    };
+
+    //funcion que hace zoom out utilizando la proporcion 'zoomOutProportion'
+    var zoomOut = function(event){
+      event.preventDefault();
+      zoom(zoomOutProportion);
+    };
+
+    //funcion que hace zoom in utilizando la proporcion 'zoomInProportion'
+    var zoomIn = function(event){
+      event.preventDefault();
+      zoom(zoomInProportion);
+    };
+				 
+    //--------------------------FUNCIONES DE SCROLL----------------------------
+    //funcion que es llamada desde una region (path) que permite redibujarla 
+    //segun un nuevo centro de plano y una proporcion
+    var translatePointsAndRegions = function(coordinates){
+      var translation = '...t'+coordinates[0]+','+coordinates[1];
+      var translation_figures = '...t'+coordinates[0]*zoomTotal+','+coordinates[1]*zoomTotal;
+      imgPlano.transform(translation);
+      //moviendo los puntos(azules) de todas las regiones(paths)
+      for (x in listPoints){
+	listPoints[x].transform(translation_figures);
+      }
+      //moviendo las regiones (paths)
+      for (x in list_poligons){
+	list_poligons[x].transform(translation_figures);
+      }            
+      scrollTotal[0]+=coordinates[0]*zoomTotal;
+      scrollTotal[1]+=coordinates[1]*zoomTotal;
+      scrollReverseTotal[0]+=coordinates[0];
+      scrollReverseTotal[1]+=coordinates[1];
+      //habria q calcular cuanto difiere un plano del otro cuando se hace zoom
+      //en si seria cuando difieren los puntos.... y sumarlo a los scrollReverse
+      //creo que seria la diferencia de cuanto crece o decrece la imagen
+      //despues de todo al final estamos dibujando sobre la imagen sin importar
+      //su plano de referencia... ir acumulando esa diferencia para restarla o 
+      //sumarla a los desplazamientos
+    };
+
+    var moveLeft = function(event){
+      event.preventDefault();
+      translatePointsAndRegions(scrollLeft);
+    };
+
+    var moveRight = function(event){
+      event.preventDefault();
+      translatePointsAndRegions(scrollRight);
+    };
+
+    var moveUp = function(event){
+      event.preventDefault();
+      translatePointsAndRegions(scrollUp);
+    };
+
+    var moveDown = function(event){
+      event.preventDefault();
+      translatePointsAndRegions(scrollDown);
+    };
+
+				 
+    $('img#zoomOut').click(zoomOut);
+    $('img#zoomIn').click(zoomIn);
+    $('img#moveLeft').click(moveLeft);
+    $('img#moveRight').click(moveRight);
+    $('img#moveUp').click(moveUp);
+    $('img#moveDown').click(moveDown);
+				 
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/plano.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+
+  {% if success %}
+    <ul id="mensajeItem" class="messagelist">
+      <li class="info">El item fue agregado con éxito</li>
+    </ul>
+  {% endif %}
+
+  <ul class="messagelist no-display" id='image_plano_updated'>
+      <li class="info">La imágen del plano fue actualizada con éxito.</li>    
+  </ul>
+
+  <div class="posRelative">
+
+
+  {% block form_top %} <h1>{% trans 'Edit' %} Plano</h1>
+  
+  {% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Localization Form -->
+      <form id='location_Form' enctype='multipart/form-data' action="" method="post">{% csrf_token %}
+      <div class='form-row zoom-tool'>
+	{% comment %}
+	{% thumbnail plano.plano 380x380 quality=100 upscale as thumb %}
+	{% endcomment %}
+	<div id='plano' style='border:1px solid; float:left; display:block; '>
+	</div>
+	<img id="zoomIn" src="{{STATIC_URL}}proyectos/img/admin/zoom-in.png">
+	<img id="zoomOut" src="{{STATIC_URL}}proyectos/img/admin/zoom-out.png"><br/>
+	<img id="moveLeft" src="{{STATIC_URL}}proyectos/img/admin/scroll_left.png">
+	<img id="moveRight" src="{{STATIC_URL}}proyectos/img/admin/scroll_right.png">
+	<img id="moveUp" src="{{STATIC_URL}}proyectos/img/admin/scroll_up.png">
+	<img id="moveDown" src="{{STATIC_URL}}proyectos/img/admin/scroll_down.png">
+      </div>
+    </div>
+    <div class='proyecto-form-col2'>
+      <div class="submit-row" id='DrawButton'>
+	<input id='start_drawing' class="default" type="submit" name="localizacion" value="Dibujar Región del Item">
+	<input id='draw_image' class="default" type="submit" name="draw_image" value="Actualizar Imágen del Plano">
+	<div class='no-display' id='text_instrucciones'>
+	  <h1>¿Cómo dibujar un item?</h1>
+	  <ol>
+            <li>Recargue la página de modo que la imagen este en su posición inicial sin zooms ni desplazamientos.</li>
+	    <li>(Sólo si es necesario) Realice zoom in y/o zoom out (sin desplazarse por la imagen) hasta que obtenga la resolución deseada.</li>
+	    <li>(Sólo si es necesario) Desplace la imagen hasta que vea toda la región a delimitar.</li>
+            <li>Si ya realizó acciones de zoom y de desplazamiento no vuelva a hacer zoom (luego de haberse desplazado) o no se dibujará adecuadamente el item. Recuerde que si no realiza las acciones de zoom y desplazamiento en el orden indicado no se dibujará correctamente el item. Si la región a delimitar no se ve 
+completamente, vuelva a cargar la página e inténtelo de nuevo.</li>
+	    <li>Delimite el item haciendo puntos (en sentido horario o antiorario) alrededor de la región del item.</li>
+	    <li>Cree los puntos haciendo clic izquierdo sobre el plano.</li>
+	    <li>Cierre la región haciendo click derecho sobre el plano, esto va a:
+	      <ul>
+		<li>Unir los puntos en el orden ingresado.</li>
+		<li>Unir el último punto con el primero.</li>
+		<li>Sombrear el área entre los puntos.</li>
+		<li>Desplegar el formulario para ingresar los datos del item.</li>
+	      </ul>
+	    </li>
+	  </ol>
+
+	  <h1>¿Cómo editar un item ya creado?</h1>
+	  <ol>
+	    <li>Para cambiar los datos de un item, haga clic sobre su región y utilice el formulario que aparecá en un popin.</li>
+	    <li>Para editar la forma del item sólo arrastre los puntos azules que están en sus vértices. En este caso puede realizar todos los zoom in, zoom out y desplazamientos que vea necesarios en el orden que desee.</li>
+	  </ol>
+	</div>
+      </div>
+      </form>
+      <!-- End Add Localizacion Form -->
+      <!-- Begin add item form -->
+      <div id='addItem' class='no-display'>
+      <h1>{% trans 'Add' %} Item</h1>
+      <form id='addItemForm' action='' method='post'>{% csrf_token %}
+	<fieldset class='module aligned'>
+	  <div class='form-row'>
+	    {{form.non_field_errors}}
+	    {{form.numero.errors}}
+	    {{form.numero.label_tag}}{{form.numero}}
+	  </div>
+	  <div class='form-row'>
+	    {{form.tipo_item.errors}}
+	    {{form.tipo_item.label_tag}}{{form.tipo_item}}
+	    <a id="add_id_tipo_item" class="add_another" onclick="return showAddAnotherPopup(this);" href="{% url admin:proyectos_tipoitem_add %}">
+	      <img width="10" height="10" alt="Añadir otro" src="{{STATIC_URL}}admin/img/admin/icon_addlink.gif">
+	    </a>
+	    {{form.plano}}
+	  </div>
+	  <div class='form-row'>
+	    {{form.detalles.errors}}
+	    {{form.detalles.label_tag}}{{form.detalles}}
+	  </div>
+	</fieldset>
+	<div class="submit-row">
+	  <a class='deletelink formDeleteLink' href='{% url admin:admin_redirect_to_plano plano_id %}'>
+	    Cancelar
+	  </a>
+	  <input class="default" type="submit" name="guardar_item" value="Guardar Item">
+	</div>
+      </form>
+      </div>
+      <!-- End add item form -->
+    </div>
+  </fieldset>
+
+
+  </div>
+</div>
+{% endblock %}

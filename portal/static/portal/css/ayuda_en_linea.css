@@ -1,0 +1,30 @@
+.title {
+    padding: 6px 0 3px 35px;
+    color: #DB1E3E;
+    font-size: 16px;
+    background: url("/static/common/img/Icono chat.png") no-repeat left;
+}
+#sonido {
+    margin-top: 5px;
+}
+#input_box {
+    margin: 10px 0;
+    width: 510px;
+    height: 170px;
+    border: 1px solid #CECECE;
+    overflow: auto;
+}
+#message {
+    width: 399px;
+    height: 50px;
+    border: 1px solid #CECECE;
+}
+.boton {
+    margin-top: 14px;
+    padding: 15px 25px;
+}
+.box {
+    margin-bottom: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+}

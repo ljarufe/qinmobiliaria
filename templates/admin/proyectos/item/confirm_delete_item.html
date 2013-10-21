@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="{% url admin:index %}">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:app_list 'proyectos' %}">Proyectos</a> &rsaquo; 
+     <a href="{% url admin:proyectos_item_changelist %}">Items</a> &rsaquo; 
+     {% trans 'Delete' %} Item
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    <p>Seguro que desea borrar el item seleccionado?. 
+      Recuerde que también se eliminarán sus objetos relacionados.
+      <ul>{{queryset|unordered_list}}</ul>
+    </p>
+    <form action="" method="post">{% csrf_token %}
+    <div>
+    <input type="submit" value="{% trans "Yes, I'm sure" %}" />
+    </div>
+    </form>
+
+{% endblock %}

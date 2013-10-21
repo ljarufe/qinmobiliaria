@@ -1,0 +1,88 @@
+{% load i18n %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+	<!--[if IE 8]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base_ie8_hacks.css" /><![endif]-->
+	<!--[if IE 7]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base_ie7_hacks.css" /><![endif]-->
+
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.polygon_edit/areas_edit.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}usuarios/js/usuario_intereses.js"></script>
+        <script type="text/javascript">
+            var url_desuscribir = "{% url json_desuscribir %}";
+            var form_areas = [];
+            var num_form_areas = 0;
+            {% for area in areas %}
+                form_areas[num_form_areas] = {
+                    id: {{ area.id }},
+                    high_latitud: "{{ area.high_latitud }}".replace(",", "."),
+                    low_latitud: "{{ area.low_latitud }}".replace(",", "."),
+                    high_longitud: "{{ area.high_longitud }}".replace(",", "."),
+                    low_longitud: "{{ area.low_longitud }}".replace(",", ".")
+                };
+                num_form_areas++;
+            {% endfor %}
+        </script>
+        <style type="text/css">
+            .de-suscribir {
+                cursor: pointer;
+                padding: 3px 10px;
+                border: 1px solid #C4C4C4;
+                margin-bottom: 3px;
+            }
+                .de-suscribir span {
+                    -webkit-border-radius: 10px;
+                    -moz-border-radius: 10px;
+                    border-radius: 10px;
+                    background: #DB1D3D;
+                    color: white;
+                    padding: 1px 4px;
+                    margin-left: 6px;
+                }
+        </style>
+    </head>
+    <body class="bg_white">
+        <div class="box table_ie_hack noPadR">
+            <h2 class="panel_titulo">{% blocktrans %}Rubros de interés{% endblocktrans %}</h2>
+            {% if rubros %}
+            <table>
+                {% for rubro in rubros %}
+                <tr>
+                    <th>
+                        <a href="{{ rubro.get_absolute_url }}" target="_parent">
+                            {{ rubro }}
+                        </a>
+                    </th>
+                    <td>
+                        <div class="right de-suscribir" rubro="{{ rubro.id }}" title="{% blocktrans %}Quitar de los rubros de interés{% endblocktrans %}">
+                            {% blocktrans %}Eliminar{% endblocktrans %} <span>x</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+                <p>
+                    {% blocktrans %}Para suscribirse a un rubro y estar al tanto de los nuevos proyectos{% endblocktrans %} <a href="{% url ayuda_suscripcion %}" target="_blank">{% blocktrans %}siga estos pasos{% endblocktrans %}</a>.
+                </p>
+            {% endif %}
+            <form id="int_form" action="" method="post">
+                <table>
+                    {{ form.as_table }}
+                </table>
+                {{ formset.as_p }}
+                <h2 class="panel_titulo">{% blocktrans %}Áreas de interés{% endblocktrans %}</h2>
+                <div class="right append-bottom">
+                    <a class="ayuda" href="{% url ayuda_areas %}" target="_blank">{% blocktrans %}¿Cómo seleccionar una ubicación en el mapa?{% endblocktrans %}</a>
+                </div>
+                <div id="map_area" style="width:380px; height:300px"></div>
+                <div class="prepend-top right">
+                    <input type="submit" value="{% blocktrans %}Guardar{% endblocktrans %}">
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

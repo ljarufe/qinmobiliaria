@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{% if oferta %}
+<div>
+    -{{ oferta.tasa_descuento }}% {% blocktrans %}en{% endblocktrans %} {{ oferta.tipo_item.nombre }}
+</div>
+{% endif %}

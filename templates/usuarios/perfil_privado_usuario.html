@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% load blocktags assign proyectos_slider truncate i18n %}
+
+{% block title %}{% blocktrans %}Perfil privado{% endblocktrans %}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/perfil_privado_usuario.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.progressbar.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}usuarios/js/perfil_privado_usuario.js"></script>
+{% endblock %}
+
+{% block body %}
+    <!-- Contenedor izquierdo -->
+    <div class="span-23 last box">
+        <div class="messages"></div>
+        <h1>Perfil</h1>
+        <div class="span-16">
+            <div id="tabs">
+                <ul>
+                    <li><a href="#tabs-1">{% blocktrans %}Datos personales{% endblocktrans %}</a></li>
+                    <li><a href="#tabs-2">{% blocktrans %}Intereses{% endblocktrans %}</a></li>
+                    <li><a href="#tabs-3">{% blocktrans %}Afiliaciones{% endblocktrans %}</a></li>
+                    <li><a href="#tabs-4">{% blocktrans %}Separados{% endblocktrans %}</a></li>
+                </ul>
+                <div id="tabs-1">
+                    <iframe src="{% url usuario_editar %}" width="418" height="800"></iframe>
+                </div>
+                <div id="tabs-2">
+                    <iframe src="{% url usuario_intereses %}" width="418" height="1200"></iframe>
+                </div>
+                <div id="tabs-3">
+                    <iframe src="{% url usuario_subscripciones %}" width="418" height="1200"></iframe>
+                </div>
+                <div id="tabs-4">
+                    <iframe src="{% url usuario_separados %}" width="418" height="1200"></iframe>
+                </div>
+            </div>
+        </div>
+        <!-- Contenedor derecho -->
+        <div class="span-7 last">
+            <!-- Publicidad de proyectos -->
+            <div class="span-7 last">
+                <h2 class="proyectos panel_titulo">{% blocktrans %}Proyectos{% endblocktrans %}</h2>
+                {% proyectos_slider %}
+            </div>
+
+            <!-- Noticias -->
+            <div class="span-7 last prepend-top">
+                <div class="span-7 last">
+                    <h2 class="noticias panel_titulo">{% blocktrans %}Noticias{% endblocktrans %}</h2>
+                    {% for noticia in noticias.object_list %}
+                        <div class="span-7 last prepend-top noticia">
+                            <img src="{{ noticia.image.extra_thumbnails.small_preview }}" alt="{{ entry.title }}">
+                            <div>
+                                <h2>
+                                    <a href="{{ noticia.get_absolute_url }}">
+                                        {{ noticia.title }}
+                                    </a>
+                                </h2>
+                                <h3>{% blocktrans %}Proyectos{% endblocktrans %}:
+                                    {% for proyecto in noticia.proyectos.all %}
+                                        <a href="{{ proyecto.get_absolute_url }}">{{ proyecto }}</a>{% if not forloop.last %}, {% else %}.{% endif %}
+                                    {% endfor %}
+                                </h3>
+                                <p>{{ noticia.content|safe|trunc_char:"250"|striptags }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="span-7 last prepend-top paginator w264">
+                    {% paginator noticias %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,258 @@
+/* begin admin etapas */
+table.Table-no-border, table.Table-no-border th, table.Table-no-border td {
+    border: 0 none;
+}
+div.half {
+    width: 40%;
+    float: left;
+    padding-right: 20px;
+}
+.no-display {
+    display: none;
+}
+div.subetapas_list {
+    height: 242px;
+    overflow: auto;
+}
+table.subetapas_list tr td.first{
+    width: 70%;
+}
+table.subetapas_list tr td.second{
+    width: 16%;
+}
+/* end admin etapas */
+
+/* begin admin proyectos */
+div.proyecto-form-col1{
+    width: 65%;
+    float: left;    
+}
+div#map-canvas{
+    height: 400px;
+}
+div.proyecto-form-col2{
+    width: 30%;
+    float: left;
+    margin-left: 1%;
+}
+iframe.ubicacion {
+    border: none;
+    width: 100%;
+    height: 520px;
+}
+iframe.editar_plano {
+    border: none;
+    width: 100%;
+    height: 860px;
+}
+iframe.fotos_videos{
+    border: none;
+    width: 100%;
+    height: 390px;    
+}
+iframe.caracteristicas{
+    border: none;
+    width: 100%;
+    height: 380px;    
+}
+iframe.beneficios{
+    border: none;
+    width: 100%;
+    height: 380px;    
+}
+iframe.contacto{
+    border: none;
+    width: 100%;
+    height: 540px;    
+}
+input.address{
+    width: 77%;
+}
+select.provincia{
+    width: 200px;
+}
+/* end admin proyectos */
+/* begin fotos tool */
+div.fotos_tool{
+    background: url('../../admin/img/admin/nav-bg.gif') repeat-x scroll 0 100% white;
+    border: 1px solid #CCCCCC;
+    height: 281px;
+    width: 360px;
+    margin: 5px 0;
+    overflow: hidden;
+    padding: 5px 7px;
+    text-align: right;
+}
+div.fotosTool_left{
+    float: left;
+    width: 30px;
+    text-align: center;
+}
+div.fotosTool_left img{
+    margin-top: 124px;
+    margin-bottom: 110px;
+}
+div.fotosTool_center{
+    float: left;
+    width: 300px;
+    text-align: center;
+}
+div.fotosTool_center img{
+    margin-top: 25px;
+}
+div.fotosTool_center img.selected{
+    display: inline !important;
+}
+
+div.fotosTool_centerRuler{
+    height:250px;
+    width: 0px;
+    float: left;
+}
+div.fotosTool_right{
+    float: left;
+    width: 30px;
+    text-align: center;
+}
+div.fotosTool_right img{
+    margin-top: 124px;
+    margin-bottom: 110px;
+}
+div.fotosTool_iconDelete{
+    float: left;
+    text-align: right;
+}
+/* div.fotosTool_iconDelete a{ */
+/*     margin-left: 120px; */
+/* } */
+div.fotosTool_iconDelete input[type=submit]{
+    color: #CC3434;
+    font-size: 12px;
+    background:url("../../admin/img/admin/icon_deletelink.gif") no-repeat scroll 0 5px transparent;
+    padding-left: 10px;
+    border: none;
+    margin-left: 115px;
+    cursor: pointer;
+}
+div.fotosTool_iconDelete input[type=submit]:hover{
+    color: #993333;
+    font-weight: bold;
+}
+div.fotosTool_iconEdit{
+    float: right;
+    text-align: left;
+}
+div.fotosTool_iconEdit input[type=submit]{
+    color: #5B80B2;
+    font-size: 12px;
+    background:url("../../admin/img/admin/icon_changelink.gif") no-repeat scroll 0 5px transparent;
+    padding-left: 10px;
+    border: none;
+    margin-right: 115px;
+}
+div.fotosTool_iconEdit input[type=submit]:hover{
+    color: #003366;
+    font-weight: bold;
+}
+
+/* end fotos tool */
+/* begin videos tool */
+div.fotosTool_center div.selected{
+    display: inline !important;
+}
+div.fotosTool_center div{
+    position: relative;
+    top: 25px;
+}
+
+/* end videos tool */
+/* begin caracteristicas edit-delete */
+table.caracteristicas_list tr td.first{
+    width: 81%;
+}
+div.caracteristicas_list {
+    height: 193px;
+    overflow: auto;
+}
+/* end caracteristicas edit-delete */
+
+/* begin contacto */
+table#newForms {
+    width: 100%;
+    border: 0 none !important;
+}
+table#newForms tr{
+    font-size: 11px;
+    padding: 8px 12px;
+}
+table#newForms th{
+    float: left;
+    padding: 8px 11px;
+    width: 8em;
+    color: #666666;
+    font-size: 12px;
+    font-weight: normal !important;
+    font-family: 'Lucida Grande', 'DejaVu Sans', 'Bitstream Vera Sans',Verdana, Arial, sans-serif;
+    height: 20px;
+}
+table#newForms td{
+    width: 100%;
+    height: 20px;
+    padding: 5px 0px;
+}
+div.fonoFormset_list{
+    max-height: 230px;
+    overflow: auto;
+}
+/* begin telefonos edit-delete */
+table.telefonos_list{
+    width: 100%;
+}
+table.telefonos_list tr td.first{
+    width: 51%;
+}
+table.telefonos_list tr td.second{
+    width: 38%;
+}
+div.telefonos_list {
+    height: 280px;
+    overflow: auto;
+}
+div.telefonos_list input[type=submit]{
+    color: #CC3434;
+    font-size: 12px;
+    background:url("../../admin/img/admin/icon_deletelink.gif") no-repeat scroll 0 3px transparent;
+    padding: 0 0 0 10px;;
+    border: none;
+    margin: 0px;
+    cursor: pointer;
+}
+div.telefonos_list input[type=submit]:hover{
+    color: #993333;
+}
+/* end telefonos edit-delete */
+/* end contacto */
+
+/* begin avance add milestone */
+iframe.milestone{
+    border: none;
+    width: 100%;
+    height: 350px;    
+}
+/* begin milestones edit-delete tool */
+table.milestone_list tr td.first{
+    width: 70%;
+}
+table.milestone_list tr td.second{
+    width: 15%;
+}
+table.milestone_list tr td.third{
+    width: 15%;
+}
+div.milestone_list {
+    height: 193px;
+    overflow: auto;
+}
+/* end caracteristicas edit-delete tool */
+
+/* end avance add milestone */

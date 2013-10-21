@@ -1,0 +1,80 @@
+{% extends "zinnia/iframes/base_slider.html" %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/vertical_slider/style.css"/>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/vertical_slider/jquery.vaccordion.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#va-accordion').vaccordion({
+              accordionW: 83,
+              accordionH: 255,
+              expandedHeight: 114,
+              visibleSlices: 4,
+              animOpacity: 0.6,
+              savePositions: false
+            });
+            // TODO: Arreglar el hack
+            if ($.browser.msie){
+                var v = parseInt($.browser.version,10);
+                if ( v == 7 || v == 8 ){
+                    $('#va-accordion').vaccordion({
+                      accordionW:82,
+                      accordionH:295,
+                      expandedHeight:114,
+                      visibleSlices:4,
+                      animOpacity:0.6,
+                      savePositions: false
+                    });
+                }
+            }
+            $(".slider-tab").css("height", 295);
+
+            var old_position = 1;
+            $('div.va-slice').click(function() {
+                var new_position = $(this).attr("position");
+                var desp = 350*(new_position - old_position);
+                if(desp > 0) {
+                    $(".slider-tab").animate({"scrollTop": "+=" + desp}, 400);
+                }
+                else{
+                    $(".slider-tab").animate({"scrollTop": "-=" + -1*desp}, 400);
+                }
+                old_position = new_position;
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    {% if videos %}
+        <div class="slider-tab">
+            {% for video in videos %}
+                <div>
+                    <div title="{{ video.descripcion }}">
+                        {{ video.get_html_news|safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="va-accordion" class="va-container">
+            <div class="va-nav">
+                <span class="va-nav-prev">Previous</span>
+            </div>
+            <div class="va-wrapper">
+                {% for video in videos %}
+                    <div class="va-slice va-slice-{{ forloop.counter }}" id="{{ video.id }}" position={{ forloop.counter }}>
+                        {{ video.get_thumbnail|safe }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="va-nav">
+                <span class="va-nav-next">Next</span>
+            </div>
+        </div>
+    {% else %}
+        Esta noticia no contiene videos
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/jquery.tipsy.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        //handler para el elemento 'select#id_estado' 
+        var verifyEstado = function (animate) {
+          if (!animate){
+            var animate ='fast';
+          }
+          if ($('select#id_estado').val() != 'D'){
+            $('div#cliente').show(animate);
+          }else{
+            $('div#cliente').hide(animate);
+          }
+        };
+
+        //handler para el elemento 'select#id_estado' con animacion
+        var verifyEstadoAnimated = function (){
+          verifyEstado('slow');
+        };
+
+        //handler para realizar la seleccion en la lista de resultados de 
+        //clientes
+        var selectLi = function () {
+          $('input#id_search_cliente').val($(this).text());
+          $('select#id_cliente').html('<option selected="selected" value="'+$(this).attr("name")+'"></option>');
+          $('ul#fastSearchResults').html('');
+        };
+
+        //funcion de busqueda rapida
+        $.fn.fastSearch = function () {
+          var patron = '';
+          $(this).keyup(function () {
+            patron = $(this).val();
+            if (patron.length > 2){
+              var request = $.ajax({
+                   url: "{% url 'admin:admin_proyecto_ajax_search_clientes' %}",
+                   type: "GET",
+                   data: {'patron': patron}, 
+                   dataType: "json"
+                                  });
+              request.done(function(res, status) {
+                $('ul#fastSearchResults').html(res['lista']);
+              });
+            }else{
+              $('ul#fastSearchResults').html('');
+            }
+          });
+        };
+
+        verifyEstado();
+        {% if cliente_name %}
+          $('input#id_search_cliente').val('{{cliente_name.fullName}}');
+        {% endif %}
+        $('select#id_estado').change(verifyEstadoAnimated);
+        $('input#id_search_cliente').fastSearch();
+        $('input#id_search_cliente').tipsy({fade: true, gravity: 's', fallback: "Busque un cliente por nombres o apellidos y luego seleccionelo. Si desea agregar uno nuevo haga clic en el '+'." });
+        $('li.result').live("click", selectLi);
+        $('select#id_cliente').hide();
+
+      })
+    </script>
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+<!-- Begin custom css -->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/confirm.css"/>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/item.css"/>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}common/css/tipsy.css" />
+<!-- End custom css -->
+{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Proyectos</a> &rsaquo;
+     <a href="../">Items</a> &rsaquo;
+     {% trans "Add" %} Item
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form enctype="multipart/form-data" action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Edit' %} Item</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+	{{form.numero.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.numero.label_tag}}</td>
+	      <td>
+		{{form.numero}}
+		{% if form.numero.help_text %}
+  	        <br/>
+	        {{form.numero.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+
+	{{form.tipo_item.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.tipo_item.label_tag}}</td>
+	      <td>
+		{{form.tipo_item}}
+        <a href="/admin/proyectos/tipoitem/add/" class="add-another" id="add_id_tipoitem" onclick="return showAddAnotherPopup(this);">
+            <img src="/static/admin/img/admin/icon_addlink.gif" width="10" height="10" alt="Añadir otro">
+        </a>
+		{% if form.tipo_item.help_text %}
+  	        <br/>
+	        {{form.tipo_item.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+
+	{{form.estado.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.estado.label_tag}}</td>
+	      <td>
+		{{form.estado}}
+		{% if form.estado.help_text %}
+  	        <br/>
+	        {{form.estado.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+
+	{{form.cliente.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}" id='{{form.cliente.html_name}}'>
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.cliente.label_tag}}</td>
+	      <td>
+		<input autocomplete="off" id="id_search_cliente" type="text" maxlength="120" value="" name="search_cliente">
+		{{form.cliente}}
+	    <a id="add_id_cliente" class="add_another" onclick="return showAddAnotherPopup(this);" href="{% url 'admin:admin_cliente_add' %}">
+	      <img width="10" height="10" alt="Añadir otro" src="{{STATIC_URL}}admin/img/admin/icon_addlink.gif">
+	    </a>
+		{% if form.cliente.help_text %}
+  	        <br/>
+	        {{form.cliente.help_text}}
+		{% endif %}
+		<ul id='fastSearchResults'>
+		  <div id="results">
+		  </div>
+		</ul>
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+
+	{{form.detalles.errors}}
+  	<div class="form-row {% if field.errors %}errors{% endif %}">
+	  <table class="Table-no-border">
+	    <tr>
+	      <td>{{form.detalles.label_tag}}</td>
+	      <td>
+		{{form.detalles}}
+		{% if field.help_text %}
+  	        <br/>
+	        {{form.detalles.help_text}}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
+  	</div>
+	{{form.id}}
+	{{form.plano}}
+	{{form.poligono}}
+      </fieldset>
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+
+	<!-- <input type="submit" name="_addanother" value="{% trans 'Save and add another' %}"> -->
+	<!-- <input type="submit" name="_continue" value="Guardar y Agregar más Datos"> -->
+
+	<!-- <input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}"> -->
+	<p class='deletelink-box'>
+	  <a class='deletelink' href="delete_item/{% if is_popup %}?_popup=1{% endif %}">{% trans 'Delete' %}</a>
+	</p>
+      </div>
+    </div>
+  </form>
+
+
+</div>
+{% endblock %}

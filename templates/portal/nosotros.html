@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Nosotros{% endblocktrans %}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet"
+          href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css"
+          xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{{ STATIC_URL }}portal/css/nosotros.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.tabs.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#tabs").tabs({selected: getURLParameter("tab")});
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1">{% blocktrans %}Introducción{% endblocktrans %}</a></li>
+            <li><a href="#tabs-2">{% blocktrans %}Historia{% endblocktrans %}</a></li>
+            <li><a href="#tabs-3">{% blocktrans %}Misión{% endblocktrans %}</a></li>
+            <li><a href="#tabs-4">{% blocktrans %}Visión{% endblocktrans %}</a></li>
+            <li><a href="#tabs-5">{% blocktrans %}Proyectos desarrollados{% endblocktrans %}</a></li>
+        </ul>
+        <div id="tabs-1">
+            <h2>{% blocktrans %}Introducción{% endblocktrans %}</h2>
+            {% if inmobiliaria.introduccion %}
+            <p>{{ inmobiliaria.introduccion|safe }}</p>
+            {% endif %}
+        </div>
+        <div id="tabs-2">
+            <h2>{% blocktrans %}Historia{% endblocktrans %}</h2>
+            {% if inmobiliaria.historia %}
+                <p>{{ inmobiliaria.historia|safe }}</p>
+            {% endif %}
+        </div>
+        <div id="tabs-3">
+            <h2>{% blocktrans %}Misión{% endblocktrans %}</h2>
+            {% if inmobiliaria.mision %}
+            <p>{{ inmobiliaria.mision|safe }}</p>
+            {% endif %}
+        </div>
+        <div id="tabs-4">
+            <h2>{% blocktrans %}Visión{% endblocktrans %}</h2>
+            {% if inmobiliaria.vision %}
+            <p>{{ inmobiliaria.vision|safe }}</p>
+            {% endif %}
+        </div>
+        <div id="tabs-5">
+            <h2>{% blocktrans %}Proyectos desarrollados{% endblocktrans %}</h2>
+            {% if inmobiliaria.desarrollados %}
+                <p>{{ inmobiliaria.desarrollados|safe }}</p>
+            {% endif %}
+            <div>
+            {% for item in desarrollados %}
+                <div class="desarrollado-item">
+                    <a href="{{ item.get_absolute_url }}">
+                        <img src="{{ item.logo.thumbnail }}" alt="{{ item.nombre }}">
+                    </a>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

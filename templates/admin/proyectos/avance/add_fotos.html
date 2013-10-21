@@ -1,0 +1,175 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {      
+    var lastFoto = '{{fotosLength}}';
+    $('img[alt=1]').removeClass('no-display').addClass('selected');
+    $('form#deleteForm input#id_id').attr('value',$('img[alt=1]').attr('id'));
+    $('form#editForm input#id_id').attr('value',$('img[alt=1]').attr('id'));
+
+    $.fn.nextFoto = function(){
+      //si no existe ninguna foto retorna 0
+      //si existe una sgte foto la muestra sino regresa a la primera
+      //actualiza el valor id del form para borrar y editar
+      if ($('img[alt=1]').length == 0){
+        return 0;
+      }
+      var Alt = $(this).attr('alt');
+      $(this).attr('class','no-display');
+      Alt++;
+      var next = $('img[alt='+Alt+']');
+      if (next.length > 0){
+        var imgAlt = $('img[alt='+Alt+']')
+      }else{
+        var imgAlt = $('img[alt=1]')    
+      }
+      imgAlt.attr('class', 'selected');
+      $('form#deleteForm input#id_id').attr('value',imgAlt.attr('id'));
+      $('form#editForm input#id_id').attr('value',imgAlt.attr('id'));
+    };
+
+    $.fn.prevFoto = function(){
+      //si no existe ninguna foto retorna 0
+      //si existe una foto anterior la muestra sino regresa a la última
+      //actualiza el valor id del form para borrar
+      if ($('img[alt=1]').length == 0){
+        return 0;
+      }
+      var Alt = $(this).attr('alt');
+      $(this).attr('class','no-display');
+      Alt--;
+      var next = $('img[alt='+Alt+']');
+      if (next.length == 0){
+        var imgAlt = $('img[alt='+lastFoto+']');
+      }else{
+        var imgAlt = $('img[alt='+Alt+']');
+      }
+      imgAlt.attr('class', 'selected');
+      $('form#deleteForm input#id_id').attr('value',imgAlt.attr('id'));
+      $('form#editForm input#id_id').attr('value',imgAlt.attr('id'));
+    };
+
+    $('div.fotosTool_right a').click(function(event){
+      event.preventDefault();
+      $('img.selected').slideUp(400,function(){
+        $('img.selected').nextFoto();
+      });
+    });
+
+    $('div.fotosTool_left a').click(function(event){
+      event.preventDefault();
+      $('img.selected').slideUp(400,function(){
+        $('img.selected').prevFoto();
+      });
+    });
+
+    $('input[name=edit]').click(function(event){
+      event.preventDefault();
+      var data = { id: $('form#editForm input#id_id').attr('value') };        
+      var request = $.ajax({
+                        url: "{% url admin:admin_proyecto_ajax_edit_foto %}",
+                        type: "POST",
+                        data: data, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('input#id_nombre').attr('value',res['nombre']);
+        $('textarea#id_descripcion').attr('value',res['descripcion']);
+        $('form#fotoForm input#id_id').attr('value',res['id']);
+      });
+
+    });
+
+    
+
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  {% if add_success %}
+    <ul class="messagelist">
+      <li class="info">La foto fue guardada con éxito</li>
+    </ul>
+  {% endif %}
+  {% if del_success %}
+    <ul class="messagelist">
+      <li class="info">La foto fue eliminada</li>
+    </ul>
+  {% endif %}
+  {% block form_top %} <h1>{% trans 'Add' %} Foto</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Foto Form -->
+      <form id='fotoForm' enctype='multipart/form-data' action="" method="post">{% csrf_token %}
+	<div class='form-row'>
+	  {{form.non_field_errors}}
+	  {{form.nombre.errors}}
+	  {{form.nombre.label_tag}}
+	  {{form.nombre}}
+	  {{form.id}}
+	</div>
+	<div class='form-row'>
+	  {{form.imagen.errors}}
+	  {{form.imagen.label_tag}}
+	  {{form.imagen}}
+	</div>
+	<div class='form-row'>
+	  {{form.descripcion.errors}}
+	  {{form.descripcion.label_tag}}
+	  {{form.descripcion}}
+	</div>
+	<div class="submit-row" id='addReferencia'>
+          <input id="addReferencia" class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	</div>
+      </form>
+      <!-- End Add Foto Form -->
+    </div>
+    <div class='proyecto-form-col2'>
+      <!-- Begin fotos tool -->
+      <div class='fotos_tool'>
+	<div class="fotosTool_left">
+	  <a href="#"><img src="{{STATIC_URL}}proyectos/img/admin/selector-prev.gif" alt="anterior"></a>
+	</div>
+	<div class="fotosTool_center">
+	  <div class="fotosTool_centerRuler">
+	  </div>
+	  {% for i in fotosList %}
+	    <img class='no-display' id={{i.id}} src='{% thumbnail i.imagen 200x200 %}' alt='{{forloop.counter}}' title='{{i.nombre}}' />
+	  {% endfor %}
+	</div>
+	<div class="fotosTool_right">
+	  <a href="#"><img src="{{STATIC_URL}}admin/img/admin/selector-add.gif" alt="siguiente"/></a>
+	</div>
+	{% if fotosLength %}
+	<div class='fotosTool_iconDelete'>
+	  <form id='deleteForm' action='' method='post'>{% csrf_token %}
+	    {{delForm.id}}
+	    <input type='submit' value='{% trans 'Delete' %}' name="delete">
+	  </form>
+	  <!-- <a class='deletelink' href="#">{% trans 'Delete' %}</a> -->
+	</div>
+	<div class='fotosTool_iconEdit'>
+	  <!-- <a class='changelink' href="#">{% trans 'Edit' %}</a> -->
+	  <form id='editForm' action='' method='post'>{% csrf_token %}
+	    <input id='id_id' type='hidden' name='id'>
+	    <input type='submit' value='{% trans 'Edit' %}' name='edit'>
+	  </form>
+	</div>
+	{% endif %}
+      </div>
+      <!-- End fotos tool -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

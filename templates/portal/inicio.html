@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% load blocktags watermark concatenate i18n %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}portal/css/inicio.css">
+    <!--[if IE 7]><link rel="stylesheet" href="{{ STATIC_URL }}portal/css/inicio_ie7_hacks.css"><![endif]-->
+    <!--[if IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}portal/css/inicio_ie8_hacks.css"><![endif]-->
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.searchbox/jquery.searchbox.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/css/tipsy.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.searchbox/jquery.searchbox.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.slider.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.polygon_edit/area_edit.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <script type="text/javascript">
+        var min_renta, max_renta, min_venta, max_venta, uc_verified;
+        {% if rango_renta.precio_minimo__min %}
+            min_renta = parseFloat({{ rango_renta.precio_minimo__min }});
+        {% else %}
+            min_renta = 0;
+        {% endif %}
+        {% if rango_renta.precio_maximo__max %}
+            max_renta = parseFloat({{ rango_renta.precio_maximo__max }});
+        {% else %}
+            max_renta = 100000;
+        {% endif %}
+        {% if rango_venta.precio_minimo__min %}
+            min_venta = parseFloat({{ rango_venta.precio_minimo__min }});
+        {% else %}
+            min_venta= 0;
+        {% endif %}
+        {% if rango_venta.precio_maximo__max %}
+            max_venta = parseFloat({{ rango_venta.precio_maximo__max }});
+        {% else %}
+            max_venta = 100000;
+        {% endif %}
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}portal/js/inicio.js"></script>
+{% endblock %}
+
+{% block body %}
+    <!-- Formulario de búsqueda -->
+    <div class="span-8 busqueda">
+        <h2><span class="fucsia">{% blocktrans %}El lugar{% endblocktrans %}</span><span class="gris"> {% blocktrans %}que necesitas encuéntralo{% endblocktrans %} </span><span class="fucsia">{% blocktrans %}Aquí{% endblocktrans %}</span></h2>
+        <form id="busqueda_form" action="{% url resultados %}" method="post">
+            <table>
+                {% if form.errors %}
+                <tr>
+                    <th>&nbsp;</th>
+                    <td>
+                        {{ form.non_field_errors }}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if form.tipo.errors %}
+                <tr>
+                    <th>&nbsp;</th>
+                    <td>{{ form.tipo.errors }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td colspan="2" class="tipo">{{ form.tipo }}</td>
+                </tr>
+                {% if form.nombre.errors %}
+                <tr>
+                    <th>&nbsp;</th>
+                    <td>{{ form.nombre.errors }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="input_box">{{ form.nombre }}</td>
+                </tr>
+                {% if form.rubro.errors %}
+                    <tr>
+                        <th>&nbsp;</th>
+                        <td>{{ form.rubro.errors }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td class="input_box">
+                        {{ form.rubro }}
+                    </td>
+                </tr>
+                {% if form.ubicacion.errors %}
+                <tr>
+                    <th>&nbsp;</th>
+                    <td>{{ form.ubicacion.errors }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td class="get_ubicacion input_box">
+                        {{ form.ubicacion }}
+                        <img class="get_ubicacion" src="{{ STATIC_URL }}common/img/Mundito de ubicacion.png" alt="{% blocktrans %}Mapa{% endblocktrans %}">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                    {{ form.min_precio }}
+                    {{ form.max_precio }}
+                    {{ form.location }}
+                    {{ form.hi_lat }}
+                    {{ form.hi_lon }}
+                    {{ form.lo_lat }}
+                    {{ form.lo_lon }}
+
+                    <!-- Slider de rango de precios-->
+                    <div class="prepend-top append-bottom span-8 last">
+                        <div class="span-2 lower_price_box">
+                            <div class="fucsia_box"></div>
+                        </div>
+                        <div class="span-3 prices_bar">
+                            <label>{% blocktrans %}Precios entre:{% endblocktrans %}</label>
+                            <div id="slider-range"></div>
+                        </div>
+                        <div class="span-2 last">
+                            <div class="gris_box"></div>
+                        </div>
+                    </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="submit_row">
+                        <span class="submit_buscar boton">{% blocktrans %}Buscar{% endblocktrans %}</span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <!-- Proyectos destacados -->
+    <div class="span-16 last slider-tab">
+        <div>
+            {% for destacado in destacados %}
+            <div>
+                <a href="{{ destacado.get_absolute_url }}">
+{#                    {% concatenate destacado.id "position=C,opacity=15,scale=1,tile=0" as opciones %}#}
+                    {% if destacado.foto_inicio == "" %}
+{#                        <img src="{{ destacado.foto_principal.extra_thumbnails.slider.absolute_url|watermark:opciones }}" />#}
+                        <img src="{{ destacado.foto_principal.extra_thumbnails.slider }}" />
+                    {% else %}
+{#                        <img src="{{ destacado.foto_inicio.thumbnail.absolute_url|watermark:opciones }}" />#}
+                        <img src="{{ destacado.foto_inicio.thumbnail }}" />
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <ul>
+        {% for destacado in destacados %}
+            <li href="{{ destacado.get_absolute_url }}" position="{{ forloop.counter }}" class="slider-trigger {% if forloop.counter == 1 %}slider-activo{% endif %}">
+                <h3>
+                    {{ destacado.nombre }}
+                </h3>
+                <span>{{ destacado.rubro }}</span>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div id="ubicacion_map" class="jqmWindow span-14">
+        <div class="span-14 last">
+            <div class="span-12">
+                <h1 class="ubicacion_titulo">{% blocktrans %}Encuentra su ubicación{% endblocktrans %}</h1>
+            </div>
+            <div class="span-2 last right close_popin">
+                {% blocktrans %}cerrar{% endblocktrans %} <span>X</span>
+            </div>
+            <div class="span-14 last right">
+                <a class="ayuda" href="{% url ayuda_ubicacion %}" target="_blank">{% blocktrans %}¿Cómo seleccionar una ubicación en el mapa?{% endblocktrans %}</a>
+            </div>
+            <div class="span-14 last append-bottom">
+                <div id="map_area" style="width: 555px; height: 300px"></div>
+            </div>
+            <div class="span-14 last right">
+                <button id="get_bounds" class="boton">{% blocktrans %}Aceptar{% endblocktrans %}</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

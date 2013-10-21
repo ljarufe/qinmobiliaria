@@ -1,0 +1,293 @@
+h1 {
+    margin-bottom: 20px;
+}
+h2 {
+    color: #CF1131;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+    h2.titulo {
+        padding-left: 30px;
+    }
+    h2.oferta{
+        background: url('/static/common/img/Estrella ofertas.png') no-repeat left top;
+    }
+    h2.detalles{
+        background: url('/static/common/img/Hoja de papel.png') no-repeat left top;
+    }
+    h2.avance{
+        background: url('/static/common/img/Casita avance de obras.png') no-repeat left top;
+    }
+.resumen {
+    border: 1px solid #DEDEDE;
+    margin-left: -10px;
+    border-left: none;
+    margin-top: 36px;
+    min-height: 358px;
+}
+    .resumen div {
+        padding: 10px;
+    }
+    .resumen .pdf {
+        background: url("/static/common/img/Icono PDF.png") no-repeat right;
+        padding: 5px 30px 3px 0;
+    }
+    .resumen h2{
+        margin-bottom: 5px;
+    }
+    .resumen p {
+        width: 93px;
+        display: inline;
+        vertical-align: 10px;
+    }
+div.detalles{
+    margin-top: 1.5em;
+    text-align: justify;
+}
+div.oferta-container{
+    margin-top: 15px;
+    position: relative;
+    text-align: justify;
+}
+div.oferta-button{
+    height: 30px;
+    text-align: right;
+    margin-top: 5px;
+    width: 166px;
+}
+div.tipo_item{
+    height: 33px;
+    line-height: 15px;
+    overflow: hidden;
+}
+div.oferta-link{
+    height: 24px;
+    margin-top: 11px;
+}
+div.oferta-description{
+    line-height: 25px;
+}
+.tachado{
+    text-decoration: line-through;
+    color: #A0A0A0;
+}
+.newPrice{
+    color: #CF1131;
+    font-size: 14px;
+    font-weight: bold;
+}
+img.oferta-bubble{
+    position: absolute;
+    top: -15px;
+    left: 240px;
+}
+div.detalles h3{
+    color: #CF1131;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+div.detalles ul{
+    /* list-style-image: url('../img/perfil/circle.png'); */
+    list-style-type: none;
+    padding: 0 0 0 28px;
+    margin: 0px;
+}
+div.detalles li{
+    background-image: url('../img/perfil/circle.png');
+    background-repeat: no-repeat;
+    background-position: 0px 5px;
+    padding-left: 20px;
+}
+div.detalles table{
+    border-collapse: collapse !important;
+}
+div.detalles table tr{
+    border: 1px solid #E0E0E0;
+}
+div.detalles table th{
+    color: #FFFFFF;
+    background-color: #CF1131;
+    height: 35px;
+    vertical-align: bottom;
+    padding-left: 10px;
+}
+div.detalles table td{
+    padding: 10px;
+}
+div.detalles table span{
+    color: #CF1131;
+}
+div.hr{
+    height: 1px;
+    background: url('../img/perfil/punto.png') repeat center top;    
+    margin-bottom: 1.5em;
+}
+div.hr hr{
+    display: none;
+}
+#tabs {
+    border: none;
+}
+    #tabs .ui-tabs-panel {
+        padding: 0;
+    }
+    #tabs ul {
+        background: none;
+        border: none;
+        border-bottom: 10px solid #c20726;
+        padding: 0;
+        margin-right: 0;
+        -webkit-border-radius: 0;
+        -khtml-border-radius: 0;
+        border-radius: 0;
+    }
+        #tabs ul li {
+            background: none;
+            display: inline;
+            margin: 5px 0 0 0;
+            border: none;
+            padding: 8px 15px 5px 15px;
+            -webkit-border-top-left-radius: 10px;
+            -webkit-border-top-right-radius: 10px;
+            -moz-border-radius-topleft: 10px;
+            -moz-border-radius-topright: 10px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+    #tabs a {
+        color: #666666;
+        text-decoration: none;
+        padding: 0;
+    }
+    #tabs a:hover,
+    #tabs a:active, {
+        font-weight: bold;
+    }
+    #tabs .tabs_1 {
+        background: #E6E6E6;
+    }
+    #tabs .tabs_2 {
+        background: #CCCCCC;
+    }
+    #tabs .tabs_3 {
+        background: #B3B3B3;
+    }
+    #tabs .tabs_4 {
+        background: #a6a6a6;
+    }
+    #tabs .ui-state-active {
+        margin: 0;
+        padding: 12px 20px 6px 20px;
+        background: rgb(221,30,62); /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(221,30,62,1) 0%, rgba(194,7,38,1) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(221,30,62,1)), color-stop(100%,rgba(194,7,38,1))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* IE10+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dd1e3e', endColorstr='#c20726',GradientType=0 ); /* IE6-9 */
+    }
+        #tabs .ui-state-active a {
+            color: white;
+            text-decoration: none;
+        }
+        #tabs .ui-state-active a:hover,
+        #tabs .ui-state-active a:active, {
+            font-weight: bold;
+        }
+.interes {
+    padding: 10px 0;
+    border-bottom: 1px solid #E6E6E6;
+}
+    .interes .last{
+        padding-left: 10px;
+    }
+    .interes h3{
+        margin-bottom: 10px;
+    }
+.avances {
+    margin: 10px 0;
+    padding: 20px 0;
+    border-top: 2px solid #E6E6E6;
+    border-bottom: 1px solid #E6E6E6;
+}
+    .avances h3 {
+        margin: 10px 0 0 0;
+        font-size: 15px;
+        font-weight: bold;
+    }
+   .avances h4 {
+        margin: 10px 0 0 0;
+        font-size: 13px;
+        font-weight: bold;
+        color: #db1e3e;
+    }
+   a {
+       text-decoration: none;
+   }
+.slider-tab {
+    height: 280px;
+    overflow: hidden;
+}
+    .slider-tab .nombre {
+        padding: 2px 15px 5px 15px;
+        background: black;
+        opacity: 0.5;
+        text-align: right;
+        margin-top: -24px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+    .slider-tab h3 {
+        margin: 0;
+        line-height: normal;
+        margin-bottom: 0;
+        color: #ffff99;
+    }
+.nav {
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #F03856;
+}
+.jqmWindow#web_proyecto {
+    top: 5%;
+    margin-left: 0;
+    width: auto;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.close_web_proyecto {
+    position: absolute;
+    left: 94%;
+    width: 45px;
+    top: 1%;
+}
+.ui-progressbar {
+    height: 1em;
+}
+.ui-widget-header {
+    background: #F03856;
+}
+div#mapa_ubicacion {
+    width:586px; 
+    height:365px
+}
+/* hacks any firefox */
+@-moz-document url-prefix(){
+    div#mapa_ubicacion {width: 584px;height:365px;}
+}
+/* hacks only for opera */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+    head~body div#mapa_ubicacion {width: 584px;height:365px;}
+}
+/* hacks ie8 ie9  */
+div#mapa_ubicacion {
+    width:585px\0/;
+}
+/* hacks ie7 */
+*+html div#mapa_ubicacion {
+    width:584px;
+}

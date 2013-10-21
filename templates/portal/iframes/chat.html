@@ -1,0 +1,37 @@
+{% load i18n %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/chat.css" />
+	<!--[if IE 7]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/chat_ie7_hacks.css" /><![endif]-->
+	<!--[if IE 8]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/chat_ie8_hacks.css" /><![endif]-->
+        {% if form_chat.is_valid %}
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("#chat_form", parent.document).hide(400);
+                var caracteristicas = "height=350, width=550, scrollTo, resizable=1, scrollbars=1, location=0";
+                var url = "{% url ayuda_en_linea form_chat.cleaned_data.area.id form_chat.cleaned_data.nombre %}";
+                var nueva = window.open(url, 'Chat', caracteristicas);
+                parent.chat_show = false;
+            })
+        </script>
+        {% endif %}
+    </head>
+
+    <body>
+        <div class="contenedor">
+            <h2>{% blocktrans %}Chat de ayuda{% endblocktrans %}</h2>
+            <p>
+                {% blocktrans %}Seleccione el área de la que requiere ayuda{% endblocktrans %}
+            </p>
+            <form action="" method="post">
+                {{ form_chat.as_p }}
+                <div class="submit_div">
+                    <input type="submit" value="{% blocktrans %}Empezar{% endblocktrans %}">
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

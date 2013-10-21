@@ -1,0 +1,28 @@
+<tbody>
+    <tr>
+        <th></th>
+        <td>{{ form.non_field_errors }}</td>
+    </tr>
+    {% for field in form.visible_fields %}
+        {% if forloop.first %}
+            {% for hidden in form.hidden_fields %}
+                <tr class="form_hidden">
+                    {{ hidden }}
+                </tr>
+            {% endfor %}
+        {% endif %}
+        <tr>
+            <th>
+                {{ field.label_tag }}
+                {% if field.field.required %}
+                    <span>*</span>
+                {% endif %}
+            </th>
+            <td class="form_div field">
+                {{ field.errors }}
+                {{ field }}
+                {{ field.field.help_text }}
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>

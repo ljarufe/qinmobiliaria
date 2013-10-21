@@ -1,0 +1,12 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+    <p>
+	    {{respuesta}}
+    </p>
+    <p>
+        Atentamente:
+        {{sender}}
+    </p>
+{% endblock %}
+

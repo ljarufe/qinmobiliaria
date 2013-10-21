@@ -1,0 +1,55 @@
+iframe {
+    border: none;
+    width: 275px;
+}
+div#fb-root div{
+    overflow: hidden;
+}
+.forgot_pass {
+    text-align: right;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+.fb_div {
+    display: inline;
+}
+    .fb_div .fb-login-button {
+        display: inline;
+    }
+.login_div {
+    display: inline;
+    margin-left: 21px;
+    position: relative;
+    top: -1px;
+}
+    .login_div span {
+        padding: 5px 20px 5px 33px;
+        font-size: 11px;
+        font-weight: bold;
+        background-image: url("/static/common/img/login-candado.png");
+        background-repeat: no-repeat;
+        background-position: 20px 7px;
+    }
+#recuperar_pass {
+    background: white;
+    width: 280px;
+    height: 130px;
+    top: 0;
+    left: 109%;
+    padding: 10px 0;
+    border: none;
+}
+    #recuperar_pass h2 {
+        font-weight: bold;
+        color: #EF3654;
+        font-size: 15px;
+    }
+th {
+    width: 80px;
+}
+.jqmOverlay {
+    display: none;
+}
+.no-overflow{
+    overflow: hidden;
+}

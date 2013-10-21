@@ -1,0 +1,34 @@
+.nav {
+    top: 100px;
+}
+.next {
+    left: 390px;
+}
+.va-container {
+    left: 343px;
+}
+/* hacks any firefox */
+@-moz-document url-prefix(){
+    .va-container {left: 341px !important ;}
+    .next {left: 375px;}
+    .slider-tab {width: 424px;}
+    .slider-tab .nombre {width: 394px;}    
+}
+/* hacks only for opera */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+    head~body .va-container {left:341px !important;}
+    head~body .next {left:374px;}
+    head~body .slider-tab {width: 424px;}
+    head~body .slider-tab .nombre {width: 398px;}
+}
+/* hacks ie8 ie9  */
+.va-container {left: 342px\0/;}
+.next {left: 388px\0/;}
+.slider-tab {width: 425px\0/;}
+.slider-tab .nombre {width: 395px\0/;}
+
+/* hacks ie7 */
+*+html .va-container {left: 341px !important;}
+*+html .next {left: 374px;}
+*+html .slider-tab {width: 424px;}
+*+html .slider-tab .nombre {width: 394px;}

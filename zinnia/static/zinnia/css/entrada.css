@@ -1,0 +1,96 @@
+h1 {
+    margin-bottom: 10px
+}
+h2 {
+    color: #c20726;
+}
+#tabs {
+    border: none;
+}
+#tabs .ui-tabs-panel {
+    padding: 0;
+}
+#tabs ul {
+    background: none;
+    border: none;
+    border-bottom: 10px solid #c20726;
+    padding: 0;
+    margin-right: 0;
+    -webkit-border-radius: 0;
+    -khtml-border-radius: 0;
+    border-radius: 0;
+}
+#tabs ul li {
+    background: none;
+    display: inline;
+    margin: 5px 0 0 0;
+    border: none;
+    padding: 8px 15px 5px 15px;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+#tabs a {
+    color: #666666;
+    text-decoration: none;
+    padding: 0;
+}
+#tabs a:hover,
+#tabs a:active, {
+    font-weight: bold;
+}
+#tabs .tabs_1 {
+    background: #E6E6E6;
+}
+#tabs .tabs_2 {
+    background: #CCCCCC;
+}
+#tabs .ui-state-active {
+    margin: 0;
+    padding: 12px 20px 6px 20px;
+    background: rgb(221,30,62); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(221,30,62,1) 0%, rgba(194,7,38,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(221,30,62,1)), color-stop(100%,rgba(194,7,38,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dd1e3e', endColorstr='#c20726',GradientType=0 ); /* IE6-9 */
+}
+#tabs .ui-state-active a {
+    color: white;
+    text-decoration: none;
+}
+#tabs .ui-state-active a:hover,
+#tabs .ui-state-active a:active, {
+    font-weight: bold;
+}
+.fecha {
+    padding-top: 11px;
+}
+.suscripcion-div {
+    margin: 8px 25px 0 0;
+}
+.comentario-form {
+
+}
+    .comentario-form th {
+        width: 110px;
+    }
+    .comentario-form textarea {
+        width: 305px;
+        height: 100px;
+    }
+    .comentario-form input[type=text] {
+        width: 305px;
+    }
+.fuente {
+    font-weight: bold;
+    font-style: italic;
+    font-size: 11px;
+}
+    .fuente img {
+        vertical-align: -4px;
+    }

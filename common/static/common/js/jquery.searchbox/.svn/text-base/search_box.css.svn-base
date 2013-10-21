@@ -1,0 +1,58 @@
+/* Stylesheet for the search box widget */
+
+/* Input field */
+#search_box_input {
+	background-repeat: no-repeat;
+	background-position: 5px 0px;
+	width: 177px;
+}
+
+/* List of matches */
+.search_box_all {
+	position: absolute;
+	float: right;
+	background-color: #ffffff;
+	width: 145px;
+	padding: 2px;
+	border: 1px solid #EEE;
+	z-index: 7;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	display: none;
+	margin: 0px 0px 0px 0px;
+	top: 70px;
+}
+	.search_box_all ul {
+		padding: 0px;
+		margin: 0px;
+	}
+	
+	.search_box_all ul li {
+		margin: 1px;
+		padding: 4px;
+		list-style: none;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+		.search_box_all ul li .search_box_item {
+			z-index: 8;
+			cursor: pointer;
+		}
+		
+			.search_box_all ul li .search_box_item img {
+				float: left;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+			}
+			
+			.search_box_all ul li .search_box_item .search_box_item_name {
+				float: left;
+				width: 74px;
+			}
+		
+			.search_box_all ul li .search_box_item .search_box_item_name {
+				padding-left: 10px;
+				height: 40px;
+				vertical-align: middle;
+				text-align:left;
+			}

@@ -1,0 +1,160 @@
+{% load i18n %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.progressbar.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                var url_cancelar = "{% url json_cancelar_solicitud %}";
+
+                $(".progressbar").each(function() {
+                    var progress = Math.round(parseFloat($(this).attr("value")));
+                    $(this).progressbar({value: progress});
+                });
+
+                $(".cancelar").click(function() {
+                    var link = $(this);
+                    var request = $.ajax({
+                        url: url_cancelar,
+                        type: "GET",
+                        data: {id_solicitud: link.attr("id_solicitud")},
+                        dataType: "html"
+                    });
+
+                    request.done(function(msg) {
+                        var data = jQuery.parseJSON(msg);
+                        if(data.status) {
+                            $(".messages").append(data.cancel_response);
+                            if(data.cancelado) {
+                                link.parent().prev().html("{% blocktrans %}Cancelado{% endblocktrans %}");
+                            }
+                            else {
+                                link.parent().prev().html("{% blocktrans %}Por Cancelar{% endblocktrans %}");
+                            }
+                            link.remove();
+                        }
+                    });
+                })
+            });
+        </script>
+        <style type="text/css">
+            .box {
+                padding: 0;
+            }
+            .proyecto {
+                padding-left: 15px;
+            }
+            .proyecto h3 {
+                font-size: 15px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .proyecto h4 {
+                font-size: 15px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .proyecto a:link,
+            .proyecto a:visited {
+                color: black;
+            }
+            .proyecto a:hover,
+            .proyecto a:active {
+                text-decoration: none;
+            }
+            .ficha {
+                padding: 15px 0 10px 15px;
+                border: 1px solid #CCCCCC;
+            }
+            td {
+                padding: 5px 0;
+            }
+        </style>
+    </head>
+    <body class="bg_white">
+        <div class="span-10 box">
+            {% for item in esquema %}
+                <div class="span-10 last ficha">
+                    <div class="span-3">
+                        <img src="{{ item.proyecto.foto_principal.extra_thumbnails.preview }}" />
+                    </div>
+                    <div class="span-6 last proyecto">
+                        <h2>
+                            <a href="{{ item.proyecto.get_absolute_url }}">
+                                {{ item.proyecto.nombre }}
+                            </a>
+                        </h2>
+                        <h3>
+                            <a href="{{ item.proyecto.rubro.get_absolute_url }}">
+                                {{ item.proyecto.rubro }}
+                            </a>
+                        </h3>
+                        <p>{{ item.proyecto.direccion }}</p>
+                    </div>
+                    <div class="span-10 last prepend-top">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>
+                                    {% blocktrans %}Tipo de lote{% endblocktrans %}
+                                </th>
+                                <th>
+                                    {% blocktrans %}Nro de lote{% endblocktrans %}
+                                </th>
+                                <th>
+                                    {% blocktrans %}Estado{% endblocktrans %}
+                                </th>
+                                <th>
+                                    {% blocktrans %}Acciones{% endblocktrans %}
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for solicitud in item.solicitudes %}
+                                <tr>
+                                    <td>
+                                        {{ solicitud.item.tipo_item.nombre }}
+                                    </td>
+                                    <td>
+                                        {{ solicitud.item.numero }}
+                                    </td>
+                                    <td>
+                                    {% if solicitud.cancelando %}
+                                        {% if solicitud.estado == "T" or solicitud.estado == "A" %}
+                                            {% blocktrans %}Por Cancelar{% endblocktrans %}
+                                        {% else %}
+                                            {{ solicitud.get_estado_display }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ solicitud.get_estado_display }}
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if solicitud.estado != "R" and solicitud.estado != "C" and not solicitud.cancelando %}
+                                            <span class="boton cancelar" id_solicitud="{{ solicitud.id }}">{% blocktrans %}Cancelar solicitud{% endblocktrans %}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div>
+                            <div class="progressbar" value="{{ item.proyecto.avance }}"></div>
+                            <span>{{ item.proyecto.avance }} %</span>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>
+                    {% blocktrans %}Aún no ha separado lotes en ningún proyecto, para hacerlo siga{% endblocktrans %} <a href="{% url ayuda_separar %}" target="_blank">{% blocktrans %}estos pasos{% endblocktrans %}</a>.
+                </p>
+            {% endfor %}
+        </div>
+    </body>
+</html>

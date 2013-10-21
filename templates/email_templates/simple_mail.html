@@ -1,0 +1,10 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+    <p>
+        {{sender}} le ha enviado el siguiente mensaje:
+    </p>
+    <p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{content}}
+    </p>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% load thumbnail humanize i18n %}
+
+{% block title %}{% blocktrans %}Proyecto{% endblocktrans %}: {{ proyecto.nombre }}{% endblock %}
+
+{% block head %}
+    <meta property="og:title" content="{{ proyecto.nombre }}" />
+    <meta property="og:description" content="{{ proyecto.resumen }}" />
+    <meta property="og:image" content="{{ MEDIA_URL }}{{ proyecto.foto_principal }}" />
+
+    <script type="text/javascript" src="{{STATIC_URL}}proyectos/js/raphael-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/solicitud.css"/>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            {% thumbnail item.plano.plano 800x800 quality=100 upscale as thumb %}
+            ///////////////////new proportions////////////////////////////////
+            {% thumbnail item.plano.plano 890x890 quality=100 upscale as thumb2 %}
+            wProp = {{thumb2.width}}/{{thumb.width}};
+            hProp = {{thumb2.height}}/{{thumb.height}};
+            //////////////////////////////////////////////////////////////////
+
+            var paper = Raphael("plano", {{thumb2.width}}, {{thumb2.height}});
+            var imgPlano =paper.image(
+                    '{{thumb2}}',0,0,{{thumb2.width}},{{thumb2.height}});
+            var newRegion = [];
+
+
+            //crea un circulo en las coordenadas x,y y lo anhade a la lista de puntos
+            // li
+            $.fn.drawPoint = function (x,y,li,r,fillColor) {
+                if (!r){
+                    r = 5;
+                }
+                if (!fillColor){
+                    fillColor = '#FF0000';
+                }
+                var size = '1px';
+                point = paper.circle(x,y,r).attr({fill: fillColor,});
+                point.hide();
+                li.push(point);
+                return point;
+            };
+
+            //dibuja una region a partir de una lista de puntos (objetos circle)
+            //si click es true, le asigna interactividad
+            //si recibe itemLisPosition trata de agregar el contenido de itemList
+            //en la posicion itemLisPosition a los datos del path como 'item_id'
+            $.fn.drawRegion = function (l, features) {
+                if (!features){
+                    features = newRegionFeatures;
+                }
+                var regionPath = '';
+                for (x in l){
+                    if (x == 0){
+                        regionPath += 'M';
+                    }else{
+                        regionPath += 'L';
+                    }
+                    regionPath += l[x].attr('cx')+','+l[x].attr('cy');
+                }
+                regionPath += 'Z';
+                path = paper.path(regionPath).attr(features);
+
+                return path
+            }
+
+
+            var li = [];
+            var path = '';
+            var punto = '';
+            {% for point in poligon %}
+                punto =$(this).drawPoint(
+                        {{point.0}}*wProp,{{point.1}}*wProp,li,3,'#0033FF'
+                );
+            {% endfor %}
+            path = $(this).drawRegion(li, {fill: '#009900', opacity: 0.4});
+
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="span-24 last body-content box">
+        {% if anonimo %}
+            <div class="span-22 last error append-bottom">
+                {% blocktrans %}Debe{% endblocktrans %} <span class="link login_link">{% blocktrans %}iniciar sesion{% endblocktrans %}</span> {% blocktrans %}antes de enviar una solicitud{% endblocktrans %}.
+            </div>
+        {% endif %}
+
+        <div class="span-24 last body-full-width">
+            <h3><a href="{{ proyecto.get_absolute_url }}">{% blocktrans %}Volver al perfil del proyecto{% endblocktrans %}</a></h3>
+        </div>
+
+        <div class="span-12 last body-half-width">
+            <div class="span-3 height-110">
+                <img src='{{ img_path }}'>
+            </div>
+            <div class="span-8 last height-110">
+                {% blocktrans %}Tipo{% endblocktrans %}: {{ item.tipo_item.nombre.nombre }}<br/>
+                {% blocktrans %}Área{% endblocktrans %}: {{ item.tipo_item.area }}<br/>
+                {% blocktrans %}Nro de lote{% endblocktrans %}: {{ item.numero }}
+            </div>
+        </div>
+
+        <div class="span-12 last body-half-width price">
+                {% if oferta %}
+                    <img class="oferta-bubble" src="{{ STATIC_URL }}proyectos/img/perfil/oferta.png">
+		    {% if item.tipo_item.precio %}
+                    <h2 class="tachado">{% blocktrans %}Precio{% endblocktrans %}: ${{ item.tipo_item.precio|floatformat:"0"|intcomma }}</h2>
+                    <h2>{% blocktrans %}Precio{% endblocktrans %}: ${{ oferta.new_price|floatformat:"0"|intcomma }}</h2>
+		    {% endif %}
+		    {{oferta.descripcion|safe}}
+                {% else %}
+		    {% if item.tipo_item.precio %}
+                    <h2>{% blocktrans %}Precio{% endblocktrans %}: ${{ item.tipo_item.precio|floatformat:"0"|intcomma }}</h2>
+		    {% endif %}
+                {% endif %}
+        </div>
+
+        <div class="span-24 last body-full-width append-bottom">
+            <h2>{% blocktrans %}Ubicación en el plano{% endblocktrans %}</h2>
+            <div id='plano' style='border:0 solid; float:left; display:block; '>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+            <form method="POST" action="">{% csrf_token %}
+                <div class="span-24 last body-full-width append-bottom">
+                    {% if form.errors %}
+                        <div class="span-22 last error">
+			  {% if form.non_field_errors.0 %}
+			    {{form.non_field_errors.0}}
+			  {% else %}
+                            {{ form.mensaje.errors.0 }}			    
+			  {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="span-2 width-80"><h2>{{ form.mensaje.label_tag }}</h2></div>
+                    <div class="span-20 last width-800">{{ form.mensaje }}</div>
+                </div>
+
+                {# TODO: Habilitar el link cuando se tengan las condiciones de uso #}
+{#                <div class="span-12 last body-half-width">#}
+{#                    <a href="#">{% blocktrans %}Condiciones de uso{% endblocktrans %}</a>#}
+{#                </div>#}
+
+                <div class="span-12 last body-half-width all-to-right">
+                    <input type="submit" value="{% blocktrans %}Enviar Solicitud{% endblocktrans %}">
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+    <!-- begin django admin date picker -->
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/core.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/widgets.css"/>
+    <script type="text/javascript">
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    {{form.media}}
+    <!-- end django admin date picker -->
+
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+<!-- Begin custom css -->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+<!-- End custom css -->
+{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Usuarios</a> &rsaquo;
+     <a href="../">Administradores Comerciales</a> &rsaquo;
+     {% trans "Add" %} Administrador Comercial
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Add' %} Administrador Comercial</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+	{% for field in form %}
+	  {% if not can_assign_projects and field.html_name == 'asignar_proyectos' or not can_assign_projects and field.html_name == 'proyectos' %}
+	  {% else %}
+  	    {% if not field.is_hidden %}
+  	      <div class="form-row {% if field.errors %}errors{% endif %}">
+	      {{field.errors}}
+	        <table class="Table-no-border">
+	          <tr>
+	            <td>{{field.label_tag}}</td>
+	            <td>
+		      {{field}}
+		      {% if field.help_text %}
+  	              <br/>
+	              {{field.help_text}}
+		      {% endif %}
+		    </td>
+	          </tr>
+		</table>
+  	      </div>
+	    {% else  %}
+	      {{field}}
+	    {% endif %}
+	  {% endif %}
+{% comment %}
+	{{field.errors}}
+	<div class="form-row {% if field.errors %}errors{% endif %}">
+	      <table class="Table-no-border">
+		<tr>
+	          <td>{{field.label_tag}}</td>
+	          <td>
+		    {{field}}
+		    {% if field.help_text %}
+  	              <br/>
+	            {{field.help_text}}
+		    {% endif %}
+		  </td>
+		</tr>
+	      </table>
+	</div>
+{% endcomment %}
+	{% endfor %}
+      </fieldset>
+
+
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	<input type="submit" name="_addanother" value="{% trans 'Save and add another' %}">
+	<input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}">
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

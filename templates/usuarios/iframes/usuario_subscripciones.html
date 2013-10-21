@@ -1,0 +1,156 @@
+{% load blocktags i18n %}
+
+<html>
+    <head>
+        <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.progressbar.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $(".progressbar").each(function() {
+                    var progress = Math.round(parseFloat($(this).attr("value")));
+                    $(this).progressbar({value: progress});
+                });
+
+                var url_desafiliar = "{% url json_desafiliar %}";
+                $(".desafiliar").click(function() {
+                    var link = $(this);
+                    var request = $.ajax({
+                        url: url_desafiliar,
+                        type: "GET",
+                        data: {id_proyecto: link.attr("proyecto")},
+                        dataType: "html"
+                    });
+
+                    request.done(function(msg) {
+                        var data = jQuery.parseJSON(msg);
+                        if(data.status) {
+                            var id = "#proyecto_" + link.attr("proyecto");
+                            $(id).remove();
+                        }
+                    });
+                });
+            });
+        </script>
+        <style type="text/css">
+            .box {
+                padding: 0;
+            }
+            .proyecto {
+                padding-left: 15px;
+            }
+            .proyecto h3 {
+                font-size: 15px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .proyecto h4 {
+                font-size: 15px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .proyecto a:link,
+            .proyecto a:visited {
+                color: black;
+            }
+            .proyecto a:hover,
+            .proyecto a:active {
+                text-decoration: none;
+            }
+            .desafiliar {
+                margin-top: -10px;
+                font-size: 22px;
+                font-weight: bold;
+                cursor: pointer;
+                color: #C70F2D;
+            }
+            .ficha {
+                padding: 15px 0 10px 15px;
+                border: 1px solid #CCCCCC;
+            }
+            .ficha:hover {
+                background: #CCCCCC;
+            }
+        </style>
+    </head>
+    <body class="bg_white">
+        <div class="span-10 box">
+            <div class="span-10 last">
+                <ul>
+                    {% for proyecto in afiliaciones.object_list %}
+                        <li id="proyecto_{{ proyecto.id }}">
+                            <div class="span-10 ficha">
+                                <div class="span-3">
+                                    <img src="{{ proyecto.foto_principal.extra_thumbnails.preview }}" alt="{{ proyecto }}">
+                                </div>
+                                <div class="span-6 last proyecto">
+                                    <div class="span-4">
+                                        <h3>
+                                            <a href="{{ proyecto.get_absolute_url }}">
+                                                {{ proyecto }}
+                                            </a>
+                                        </h3>
+                                    </div>
+                                    <div class="span-2 last right desafiliar" proyecto="{{ proyecto.id }}" title="{% blocktrans %}Cancelar afiliación{% endblocktrans %}">
+                                        X
+                                    </div>
+                                    <div class="span-6 last">
+                                        <h4>
+                                            <a href="{{ proyecto.rubro.get_absolute_url }}">
+                                                {{ proyecto.rubro }}
+                                            </a>
+                                        </h4>
+                                        {% if proyecto.direccion %}
+                                            <p>
+                                                {{ proyecto.direccion }}
+                                            </p>
+                                        {% endif %}
+                                        {% if proyecto.avance %}
+                                            <div class="progressbar" value="{{ proyecto.avance }}"></div>
+                                            <span>{{ proyecto.avance }} %</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% if afiliaciones.object_list %}
+            <div class="span-10 prepend-top last paginator">
+                {% paginator afiliaciones %}
+            </div>
+            {% else %}
+            <div class="push-1 span-9 last">
+                <h2>{% blocktrans %}Aún no se afilió a ningún proyecto{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Para afiliarse a un proyecto y recibir información de los avances y demás{% endblocktrans %}:</p>
+                <ol>
+                    <li>
+                        <h2>{% blocktrans %}Entre al perfil de uno de los proyectos{% endblocktrans %}</h2>
+                        <p>{% blocktrans %}Puede entrar por el menú, poniendo el mouse sobre un rubro y seleccionando un proyecto{% endblocktrans %}</p>
+                        <div class="append-bottom">
+                            <img src="{{ STATIC_URL }}common/img/afiliarse_1.png">
+                        </div>
+                        <p>{% blocktrans %}Puede buscarlo con el buscador de la{% endblocktrans %} <a href="{% url inicio %}">{% blocktrans %}página principal{% endblocktrans %}</a> {% blocktrans %}por nombre o usando las demás opciones de búsqueda{% endblocktrans %}</p>
+                        <div>
+                            <img src="{{ STATIC_URL }}common/img/afiliarse_2.png">
+                        </div>
+                    </li>
+                    <li>
+                        <h2>{% blocktrans %}Click en el botón "Afiliarse"{% endblocktrans %}</h2>
+                        <p>{% blocktrans %}A la derecha de las fotos del proyecto, debajo de resumen puede encontrar el botón para afiliarse al proyecto{% endblocktrans %}.</p>
+                        <div>
+                            <img src="{{ STATIC_URL }}common/img/afiliarse_3.png">
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            {% endif %}
+        </div>
+    </body>
+</html>

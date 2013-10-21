@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en-us" xml:lang="en-us" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>{% block title %}{% endblock %} | Sitio de Administración de Quimera Inmobiliaria </title>
+    {% block extrahead %}{% endblock %}
+    {% block extrastyle%}
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/forms.css"/>
+    {% endblock %}
+  </head>
+  <body class="{% block bodyclass %}{% endblock %}">
+    <div id="container">
+      <div id="{% block div_content_id %}content{% endblock %}">
+	{% block content %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>

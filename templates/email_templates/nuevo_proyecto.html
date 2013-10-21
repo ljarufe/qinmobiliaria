@@ -1,0 +1,5 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+  {{msg|safe}}
+{% endblock %}

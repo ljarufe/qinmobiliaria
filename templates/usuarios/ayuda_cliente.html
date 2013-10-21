@@ -1,0 +1,144 @@
+{% extends 'chat_base.html' %}
+
+{% load i18n %}
+
+{% block head %}
+    <script>document.domain = document.domain;</script>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/ayuda_cliente.css" />
+    <script type="text/javascript" charset="utf-8">
+        var sender = "{{ user }}";
+
+        var url_send_message = "{% url send_message %}";
+
+        Orbited.settings.port = {{ port }};
+	    Orbited.settings.hostname = document.domain;
+        TCPSocket = Orbited.TCPSocket;
+
+        var clientes = 0;
+
+        function add_message(msg) {
+            var id = "#" + msg["client"];
+            // Hay una conversación con esta persona?
+            if($(id).size() == 0) {
+                clientes++;
+                var par = "";
+                if(clientes%2 == 0) {
+                    par = "last"
+                }
+                var html = "<div class='span-12 " + par + " prepend-top' id='" + msg["client"] + "'>" +
+                           "<div class='span-12'><h3>" + msg["sender"] + "</h3></div>" +
+                           "<div class='messages'></div>" +
+                           "<input type='hidden' name='destination' value='" + msg["client"] + "' class='destination'>" +
+                           "<div class='span-9'><label><textarea class='message' name='message'></textarea></label></div>" +
+                           "<div class='span-3 last right'><button class='send boton'>{% blocktrans %}Enviar{% endblocktrans %}</button></div>" +
+                           "</div>";
+                $("#chat-frame").append(html);
+            }
+            var div_destination = "#" + msg["client"] + " .messages";
+            $(div_destination).append("<p>" + msg["sender"] + " dijo: " + msg["message"] + "</p>");
+            $(div_destination).animate({ scrollTop: $(div_destination).prop("scrollHeight") - $(div_destination).height() }, 1000);
+            if(!window.isActive) {
+                $("#audio")[0].load();
+                $("#audio")[0].play();
+            }
+        }
+
+        function manager(msg, stomp) {
+            switch(msg['code']) {
+                // Nuevo request de usuario
+                case 1:
+                    // TODO: Aquí se podría crear el div para la ventana de conversación
+                    stomp.subscribe("/" + sender + "/" + msg["sender"]);
+                    break;
+                // Nuevo mensaje de usuario
+                case 2:
+                    add_message(msg);
+                    break;
+                default:
+                    alert("??");
+            }
+        }
+
+        function send_message(box) {
+            var text_box = box.find(".message");
+            var message = text_box.val();
+            text_box.val("");
+            var destination = "/" + sender + "/" + box.find(".destination").val();
+            $.post(url_send_message, {"message": message,
+                "sender": sender,
+                "destination": destination});
+        }
+
+        $(document).ready(function() {
+            // Las alertas se dan sólo cuando la ventana está inactiva
+            var enabled;
+            window.isActive = true;
+            $(window).focus(function() { this.isActive = true; });
+            $(window).blur(function() { this.isActive = false; });
+
+            stomp = new STOMPClient();
+
+            stomp.onopen = function(){
+                $("#status").html("Conectando...");
+            };
+
+            stomp.onclose = function(c){
+                $("#status").html("Error: " + c);
+            };
+
+            stomp.onerror = function(error){
+                $("#status").html("Error: " + error);
+            };
+
+            stomp.onerrorframe = function(frame){
+                $("#status").html("Error: " + frame);
+            };
+
+            stomp.onconnectedframe = function() {
+                $("#status").html("Suscribiendo al canal...");
+                stomp.subscribe("/" + sender);
+                $("#status").html("Conectado");
+            };
+
+            stomp.onmessageframe = function(frame) {
+                manager(JSON.parse(frame.body), stomp);
+            };
+
+            stomp.connect(document.domain, 61613);
+
+            $(".message").keyup(function(event) {
+                var key = event.keyCode;
+                if(key == 13) {
+                    send_message($(this).parent());
+                }
+            });
+
+            $(".send").live('click', function() {
+                send_message($(this).parent().parent());
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="span-24 box">
+            <div class="span-24 last">
+                <div class="span-20">
+                    <div class="title">{% blocktrans %}Chat de ayuda con los clientes{% endblocktrans %}</div>
+                </div>
+                <div class="span-4 last right">
+                    <img id="sonido" src="{{ STATIC_URL }}common/img/Audio on.png" title="{% blocktrans %}Desactivar sonido{% endblocktrans %}">
+                </div>
+            </div>
+            <div class="span-24 last">
+                <div class="span-24 last">
+                    <strong>{% blocktrans %}Usuario{% endblocktrans %}:</strong> {{ user.get_full_name }} | <strong>{% blocktrans %}Estado{% endblocktrans %}:</strong> <span id="status"></span>
+                </div>
+                <input type="hidden" name="user" value="{{ user }}" id="user">
+            </div>
+
+            <div id="chat-frame"></div>
+        </div>
+    </div>
+{% endblock %}

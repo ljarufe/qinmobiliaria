@@ -1,0 +1,103 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {      
+
+    $('a.changelink').click(function(event){
+      event.preventDefault();
+      var request = $.ajax({
+               url: "{% url admin:admin_proyecto_ajax_edit_caracteristica %}",
+               type: "POST",
+               data: {id:$(this).attr('alt')}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('input#id_nombre').attr('value',res['nombre']);
+        $('input#id_id').attr('value',res['id']);
+        $('textarea#id_descripcion').attr('value',res['descripcion']);
+      });      
+    });
+
+    $('a.deletelink').click(function(event){
+      event.preventDefault();
+      var Id = $(this).attr('alt')
+      var request = $.ajax({
+               url: "{% url admin:admin_proyecto_ajax_delete_caracteristica %}",
+               type: "POST",
+               data: {id:Id}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('tr#'+Id).hide('slow');
+        $('ul#delCaracteristica').show();
+      });
+    });
+
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  {% if add_success %}
+    <ul class="messagelist">
+      <li class="info">La característica fue agregada</li>
+    </ul>
+  {% endif %}
+  <ul id='delCaracteristica' class="messagelist no-display">
+    <li class="info">La características fue eliminada</li>
+  </ul>
+
+  {% block form_top %} <h1>{% trans 'Add' %} Característica</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Característica Form -->
+      <form id='caracteristicaForm'  action="" method="post">{% csrf_token %}
+	<div class='form-row'>
+	  {{form.non_field_errors}}
+	  {{form.nombre.errors}}
+	  {{form.nombre.label_tag}}
+	  {{form.nombre}}
+	  {{form.id}}
+	  {{form.proyecto}}
+	</div>
+	<div class='form-row'>
+	  {{form.descripcion.errors}}
+	  {{form.descripcion.label_tag}}
+	  {{form.descripcion}}
+	</div>
+	<div class="submit-row">
+          <input class="default" type="submit" name="save" value="{% trans 'Save' %}">
+	</div>
+      </form>
+      <!-- End Add Característica Form -->
+    </div>
+    <div class='proyecto-form-col2'>
+      <!-- Begin edit delete tool -->
+      <h1>Lista de características</h1>
+      <div class="caracteristicas_list">
+	<fieldset class='module'>
+	  <table class='caracteristicas_list'>
+	    {% for c in caractList %}
+	    <tr id='{{c.id}}'>
+	      <td class='first'>{{c}}</td>
+	      <td><a class='changelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Edit' %}</a></td>
+	      <td><a class='deletelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Delete' %}</a></td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</fieldset>
+      </div>
+      <!-- End edit delete tool -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

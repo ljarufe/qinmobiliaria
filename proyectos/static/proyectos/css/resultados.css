@@ -1,0 +1,172 @@
+.contenedor {
+    background: white;
+}
+.contenedor .titulo {
+    padding-left: 25px;
+    margin-bottom: 10px;
+    font-size: 17px;
+    color: #c20726;
+}
+.titulo_buscar {
+    background: url("/static/common/img/Icono buscador.png") no-repeat left;
+}
+.titulo_mapa {
+    background: url("/static/common/img/Mundito pop up.png") no-repeat left;
+}
+.form_arriba {
+    border-bottom: 3px solid #E6E6E6;
+    margin-bottom: 20px;
+}
+    .form_arriba li {
+        height: 33px;
+    }
+    .form_arriba .get_ubicacion {
+        vertical-align: -9px;
+    }
+    .form_arriba input[type=submit] {
+        padding: 35px 25px;
+    }
+
+.tabs_rubros {}
+    .tabs_rubros ul {
+        border-bottom: 10px solid #c20726;
+        padding-bottom: 3px;
+        margin-right: 0;
+    }
+        .tabs_rubros ul li {
+            display: inline;
+            padding: 8px 15px 5px 15px;
+            -webkit-border-top-left-radius: 10px;
+            -webkit-border-top-right-radius: 10px;
+            -moz-border-radius-topleft: 10px;
+            -moz-border-radius-topright: 10px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+    .tabs_rubros a {
+        color: #666666;
+        text-decoration: none;
+    }
+    .tabs_rubros a:hover,
+    .tabs_rubros a:active, {
+        font-weight: bold;
+    }
+    .tabs_rubros .activo {
+        padding: 12px 20px 5px 20px;
+        background: rgb(221,30,62); /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(221,30,62,1) 0%, rgba(194,7,38,1) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(221,30,62,1)), color-stop(100%,rgba(194,7,38,1))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* IE10+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dd1e3e', endColorstr='#c20726',GradientType=0 ); /* IE6-9 */
+    }
+        .tabs_rubros .activo a {
+            color: white;
+            text-decoration: none;
+        }
+        .tabs_rubros .activo a:hover,
+        .tabs_rubros .activo a:active, {
+            font-weight: bold;
+        }
+    .tabs_rubros .tab_0 {
+        background: #E6E6E6;
+    }
+    .tabs_rubros .tab_1 {
+        background: #CCCCCC;
+    }
+    .tabs_rubros .tab_2 {
+        background: #B3B3B3;
+    }
+    .tabs_rubros .tab_3 {
+        background: #a6a6a6;
+    }
+    .tabs_rubros .tab_4 {
+        background: #9c9c9c;
+    }
+.filtros {}
+    .filtros .span-9 {
+        font-weight: bold;
+        font-size: 14px
+    }
+    .filtros .span-5 {
+        margin-top: -5px;
+        text-align: right;
+    }
+.detalles {
+    text-align: right;
+    height: 100px;
+}
+    .detalles .link {
+        vertical-align: 8px;
+    }
+    .detalles div span {
+        font-size: 14px;
+    }
+.proyecto_preview {
+}
+    .proyecto_preview h3,
+    .proyecto_preview h4 {
+        margin-bottom: 5px;
+    }
+        .proyecto_preview h3 a,
+        .proyecto_preview h4 a {
+            color: #c20726;
+        }
+        .proyecto_preview h3 a:hover,
+        .proyecto_preview h4 a:hover,
+        .proyecto_preview h3 a:active,
+        .proyecto_preview h4 a:active {
+            text-decoration: none;
+        }
+    .proyecto_preview .acciones {
+        text-align: right;
+    }
+        .proyecto_preview .acciones ul {
+            margin-right: 0;
+        }
+        .proyecto_preview .acciones li {
+            display: inline;
+            margin-left: 5px;
+        }
+        .proyecto_preview .acciones a {
+            color: #ffffcc;
+        }
+        .proyecto_preview .acciones a:link,
+        .proyecto_preview .acciones a:visited {
+            text-decoration: none;
+        }
+.mapa_proyectos {
+    padding-right: 30px;
+}
+    .mapa_proyectos p {
+        margin: 10px 270px;
+    }
+#popup_preview_map,
+#popup_results_map {
+    width: 570px;
+    height: 330px;
+}
+.filtro_form {
+    border-top: 2px solid #E6E6E6;
+    border-bottom: 2px solid #E6E6E6;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+    .filtro_form .buscar_abajo {
+        margin-left: 248px;
+    }
+.info_window{
+}
+    .info_window h1 {
+        font-size: 14px;
+        margin: 0 0 5px 5px;
+    }
+    .info_window h2 {
+        font-size: 12px;
+        margin: 0 0 3px 5px;
+    }
+    .info_window p {
+        font-size: 10px;
+        margin: 0 0 0 5px;
+    }

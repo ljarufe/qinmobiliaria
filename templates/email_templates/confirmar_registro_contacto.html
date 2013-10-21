@@ -1,0 +1,18 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+    <p>
+        {{ sitio.domain }} | Validar registro
+    </p>
+    <p>
+        Hola {{ cliente.usuario.get_full_name }}, con los datos que ingresaste 
+en el formulario se ha creado una cuenta de usuario con la que podrás separar
+bienes y recibir información que sea de tu interés.
+
+        Para habilitar tu cuenta en {{ sitio.domain }} haz click en el 
+siguiente link o copialo en la barra de direcciones de tu navegador:
+    </p>
+    <a href="http://{{ sitio.name }}/usuarios/verificar/{{ cliente.clave_activacion }}/">
+      http://{{ sitio.name }}/usuarios/verificar/{{ cliente.clave_activacion }}/
+    </a>
+{% endblock %}

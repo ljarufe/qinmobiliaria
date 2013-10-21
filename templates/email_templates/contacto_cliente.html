@@ -1,0 +1,22 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block header %}
+    <style type="text/css">
+        .bolder {
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+<p>Su mensaje ha sido recibido y será respondido a la brevedad posible.</p>
+<p>Si desea utilizar los datos ingresados para crear una cuenta en Quimera Inmobiliaria haga click en
+    <a href="http://{{ sitio.name }}/usuarios/verificar/{{ cliente.clave_activacion }}/">ESTE</a> link.
+    Su contraseña para iniciar sesión es <span class="bolder">contacto</span>, puede cambiarla dentro
+    de las opciones de usuario.</p>
+<p>
+
+</p>
+
+{% endblock %}

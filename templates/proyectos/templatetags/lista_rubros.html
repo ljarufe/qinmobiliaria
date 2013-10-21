@@ -1,0 +1,29 @@
+<ul class="tabs">
+{% for item in menu %}
+    <li>
+        <a href="{{ item.rubro.get_absolute_url }}">{{ item.rubro.nombre }}</a>
+        <ul class="dropdown">
+        {% for proyecto in item.proyectos %}
+            <li>
+                <a href="{{ proyecto.get_absolute_url }}">
+                    <div class="span-5 last proyecto_item">
+                        <div class="span-1">
+                            <img src="{{ MEDIA_URL }}{{ proyecto.logo.extra_thumbnails.icon }}" alt="">
+                        </div>
+                        <div class="span-4 last">
+                            <h1>{{ proyecto.nombre }}</h1>
+                            <p>{{ proyecto.rubro }}</p>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+    <li>
+        <a href="{% url nosotros %}?tab=4">
+            Terminados
+        </a>
+    </li>
+</ul>

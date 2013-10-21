@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Ayuda para suscribirse a un proyecto{% endblocktrans %}{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <h1>{% blocktrans %}Ayuda para crear áreas de interés{% endblocktrans %}</h1>
+        <ol>
+            <li>
+                <h2>{% blocktrans %}Seleccione el rubro de su interés{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Haga click sobre el rubro de su interés en el menú de rubros.{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/suscribirse_1.png" alt="">
+                </div>
+            </li>
+            <li>
+                <h2>{% blocktrans %}Suscribase al rubro{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Haga click sobre el enlace con el texto "Me interesa este rubro", el enlace cambiará su texto a "Ya está suscrito".{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/suscribirse_2.png" alt="">
+                </div>
+            </li>
+        </ol>
+    </div>
+{% endblock %}

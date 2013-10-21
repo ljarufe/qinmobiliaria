@@ -1,0 +1,31 @@
+{% load i18n %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/popin.css" />
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}usuarios/js/login.js"></script>
+</head>
+
+<body class="bg_white">
+    {% if form.is_valid %}
+        <p>{% blocktrans %}Se le ha enviado un email con su nueva contraseña{% endblocktrans %}.</p>
+    {% else %}
+        <div class="span-6">
+            <form action="" method="post">
+                <div class="span-6 last">
+                    <table>
+                        {{ form.as_table }}
+                    </table>
+                </div>
+                <div class="span-6 last right">
+                    <input type="submit" value="{% blocktrans %}Enviar e-mail{% endblocktrans %}">
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</body>

@@ -1,0 +1,2 @@
+librerias de PIL para que soporte varios tipos de imagenes (jpg, png, etc)
+	

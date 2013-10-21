@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+	<script>document.domain = document.domain;</script>	
+	<link href="{{STATIC_URL}}common/img/favicon/favicon.ico" rel="SHORTCUT ICON">
+        <link rel="stylesheet" href="{{ STATIC_URL }}common/css/blueprint/screen.css" media="screen">
+        <link rel="stylesheet" href="{{ STATIC_URL }}portal/css/base.css" media="screen">
+
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/orbited/protocols/stomp/stomp.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/orbited/Orbited.js"></script>
+
+        <script type="text/javascript">
+            var enabled = true
+            $(document).ready(function(){
+                // Activar o desactivar el sonido
+                $("#sonido").click(function(){
+                    if(enabled) {
+                        $("#audio")[0].volume = 0;
+                        enabled = false;
+                        $(this).attr("src", "{{ STATIC_URL }}common/img/Audio off.png");
+                        $(this).attr("title", {% blocktrans %}"Activar sonido"{% endblocktrans %});
+                    }
+                    else {
+                        $("#audio")[0].volume = 1;
+                        enabled = true;
+                        $(this).attr("src", "{{ STATIC_URL }}common/img/Audio on.png");
+                        $(this).attr("title", {% blocktrans %}"Desactivar sonido"{% endblocktrans %});
+                    }
+                });
+            })
+        </script>
+
+        {% block head %}{% endblock %}
+    </head>
+
+    <body>
+        {% block body %}{% endblock %}
+
+        <audio id="audio">
+            <source src="{{ STATIC_URL }}common/sound/alert.wav" type="audio/wav" />
+            {% blocktrans %}Este navegador no permite audio{% endblocktrans %}.
+        </audio>
+    </body>
+</html>

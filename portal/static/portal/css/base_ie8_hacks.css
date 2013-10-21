@@ -1,0 +1,6 @@
+.table_ie_hack table{
+    width: 95% !important;
+}
+.noPadR{
+    padding-right:0px;
+}

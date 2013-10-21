@@ -1,0 +1,28 @@
+/* begin admin edit item */
+ul#fastSearchResults{
+    background: none repeat scroll 0 0 #F2F1F0; 
+    border: 0 none; 
+    display: block;
+    height:auto;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    width: auto;
+    z-index: 200;
+    cursor: pointer;
+}
+ul#fastSearchResults li{
+    border: 1px solid #CCCCCC; 
+    display: block;
+    float: none;
+    margin: 0;
+    padding: 2px 3px;
+    vertical-align: middle;
+    width: auto;
+    list-style: none outside none; 
+}
+ul#fastSearchResults li:hover{
+    background: none repeat scroll 0 0 #FFFFCC; 
+}
+
+/* begin admin edit item */

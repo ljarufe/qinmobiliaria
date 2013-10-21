@@ -1,0 +1,53 @@
+table {
+    text-align: left;
+    text-transform:lowercase;
+    font-size: 13px;
+}
+input[type=text], input[type=password] {
+    width: 190px;
+    padding: 3px;
+    border: 1px solid #cbcbcb;
+    border-right-color: #b4b4b4;
+    border-bottom-color: #b4b4b4;
+    background-color: rgb(230,230,230); /* Old browsers */
+    background-color: -moz-linear-gradient(top, rgba(230,230,230,1) 63%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+    background-color: -webkit-gradient(linear, left top, left bottom, color-stop(63%,rgba(230,230,230,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+    background-color: -webkit-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+    background-color: -o-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+    background-color: -ms-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e6e6e6', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+}
+input[type=submit], .boton {
+    padding: 5px 10px 5px 10px;
+    color: #ffffcc;
+    background-color: rgb(221,30,62); /* Old browsers */
+    background-color: -moz-linear-gradient(top, rgba(221,30,62,1) 0%, rgba(194,7,38,1) 100%); /* FF3.6+ */
+    background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(221,30,62,1)), color-stop(100%,rgba(194,7,38,1))); /* Chrome,Safari4+ */
+    background-color: -webkit-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Chrome10+,Safari5.1+ */
+    background-color: -o-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* Opera 11.10+ */
+    background-color: -ms-linear-gradient(top, rgba(221,30,62,1) 0%,rgba(194,7,38,1) 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dd1e3e', endColorstr='#c20726',GradientType=0 ); /* IE6-9 */
+    border: none;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+input[type=submit]:hover, .boton:hover {
+    color: white;
+    background-color: #e03e59; /* Old browsers */
+    background-color: -moz-linear-gradient(top, #e03e59 0%, #ca2b45 100%); /* FF3.6+ */
+    background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e03e59), color-stop(100%,#ca2b45)); /* Chrome,Safari4+ */
+    background-color: -webkit-linear-gradient(top, #e03e59 0%,#ca2b45 100%); /* Chrome10+,Safari5.1+ */
+    background-color: -o-linear-gradient(top, #e03e59 0%,#ca2b45 100%); /* Opera 11.10+ */
+    background-color: -ms-linear-gradient(top, #e03e59 0%,#ca2b45 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e03e59', endColorstr='#ca2b45',GradientType=0 ); /* IE6-9 */
+}
+.link {
+    color: #719dc2;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.link:hover {
+    text-decoration: none;
+}

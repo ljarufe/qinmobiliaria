@@ -1,0 +1,233 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n admin_modify adminmedia %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+
+    <!-- begin django admin date picker -->
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/core.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/widgets.css"/>
+    <script type="text/javascript">
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    {{form.media}}
+    <!-- end django admin date picker -->
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}common/js/jquery.tipsy.js"></script>
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}common/js/jquery.jqmodal/jqModal.css"/>
+
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/confirm.css"/>
+
+    <script>
+      $(function() {
+        {% comment %}
+        //CUADNO SE ARREGLE EL PORBLEMA DEL TINYMCE, HABILITAR ESTOS TIPS
+        $('span#id_introduccion_parent').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa una introducción al proyecto" });
+        $('span#id_resumen_parent').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa un breve resumen del proyecto" });
+        $('span#id_descripcion_parent').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa la descripción completa del proyecto" });
+        $('span#id_beneficios_parent').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa los beneficios del proyecto" });
+        {% endcomment %}
+        //CUADNO SE ARREGLE EL PORBLEMA DEL TINYMCE, BORRAR ESTOS TIPS
+        $('textarea#id_introduccion').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa una introducción al proyecto" });
+        $('textarea#id_resumen').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa un breve resumen del proyecto" });
+        $('textarea#id_descripcion').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa la descripción completa del proyecto" });
+        {% comment %}
+        $('textarea#id_beneficios').tipsy({fade: true, gravity: $.fn.tipsy.autoNS, fallback: "Ingresa los beneficios del proyecto" });
+        {% endcomment %}
+      });
+
+      $(document).ready(function() {
+          $('#confirm').jqm({overlay: 88, modal: true, trigger: false});
+
+          var created = '{{created}}';
+          if ( created == 'False'){
+              $('div.proyecto-form-part2').hide();
+          }
+
+          $('a.ajaxedit').live('click', function(event) {
+              event.preventDefault();
+              var request = $.ajax({url: "{% url 'admin:ajax_edit_subetapa' %}",
+                                       type: "GET",
+                                       data: {id : $(this).attr('alt')}, dataType: "json"
+                                   });
+              request.done(function(res, status) {
+                  $('form#editSubEtapas input[id=id_titulo]').attr(
+                          'value', res['titulo']);
+                  $('form#editSubEtapas input#id_fecha_inicio').attr(
+                          'value', res['fecha_inicio']);
+                  $('form#editSubEtapas input#id_fecha_fin').attr(
+                          'value', res['fecha_fin']);
+                  $('form#editSubEtapas input#id_porcentaje').attr(
+                          'value', res['porcentaje']);
+                  $('form#editSubEtapas input#id_id').attr(
+                          'value', res['id']);
+              });
+          });
+
+          //acciones al hacer click en el boton si o no del popin de confirmacion
+          $('input.confirm').live('click', function(event) {
+              event.preventDefault();
+              if ($(this).attr('value') == 'Borrar'){
+                  id = $(this).attr('alt');
+                  var request3 = $.ajax({
+                                            url: "{% url 'admin:ajax_delete_subetapa' %}",
+                                            type: "GET",
+                                            data: {id: id}, dataType: "json"
+                                        });
+                  request3.done(function(res, status) {
+                      $('tr#'+id).hide('slow');
+                      //dentro de donde no funciona el this :(
+                      //$(this).parents('tr').hide();
+                  });
+              }
+              $('#confirm').jqmHide()
+          });
+
+          //acciones al hacer click en el delete de una sub-etapa
+          $('a.ajaxdelete').live('click', function(event) {
+              event.preventDefault();
+              var request2 = $.ajax({
+                                        url: "{% url 'admin:ajax_delete_subetapa_view' %}",
+                                        type: "GET",
+                                        data: {id: $(this).attr('alt')}, dataType: "json"
+                                    });
+              request2.done(function(res, status) {
+                  if (res['cascade'] == '0') {
+                      var request3 = $.ajax({
+                                                url: "{% url 'admin:ajax_delete_subetapa' %}",
+                                                type: "GET",
+                                                data: {id: res['id']}, dataType: "json"
+                                            });
+                      request3.done(function(res, status) {
+                          $('tr#'+res['id']).hide('slow');
+                          //dentro de donde no funciona el this :(
+                          //$(this).parents('tr').hide();
+                      });
+                  }
+                  else{
+                      $('input.confirm').attr('alt', res['id']);
+                      $('div.jqmConfirmContent').html(res['related_objects']);
+                      $('#confirm').jqmShow();
+                  }
+              });
+          });
+
+          $("#id_nombre").keyup(function() {
+              $("#id_slug").val($("#id_nombre").val().toLowerCase().replace(/ /g, "_"));
+          });
+
+          {% comment %}
+        $('a.ajaxdelete').live('click', function(event) {
+          event.preventDefault();
+          var request2 = $.ajax({url: "{% url 'admin:ajax_delete_subetapa'%}",
+                        type: "GET",
+                        data: {id: $(this).attr('alt')}, dataType: "json"
+                        });
+          request2.done(function(res, status) {
+            $('tr#'+res['id']).hide('slow');
+            //dentro de donde no funciona el this :(
+            //$(this).parents('tr').hide();
+          });
+        });
+        {% endcomment %}
+
+      })
+    </script>
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+<!-- Begin custom css -->
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}common/css/tipsy.css" />
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+<!-- End custom css -->
+{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Proyectos</a> &rsaquo;
+     <a href="../">Proyecto</a> &rsaquo;
+     {% trans "Add" %} Proyecto
+
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form enctype="multipart/form-data" action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Add' %} Proyecto</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+	{% for field in form %}
+	  {% if not field.is_hidden %}
+	  {{field.errors}}
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{field.label_tag}}</td>
+	        <td>
+		  {{field}}
+		  {% if field.help_text %}
+  	          <br/>
+	          {{field.help_text}}
+		  {% endif %}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+	  {% else  %}
+	  {{field}}
+	  {% endif %}
+	{% endfor %}
+      </fieldset>
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	{% if not edit %}
+	<input type="submit" name="_addanother" value="{% trans 'Save and add another' %}">
+	<input type="submit" name="_continue" value="Guardar y Agregar más Datos">
+	{% endif %}
+	<!-- <input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}"> -->
+      </div>
+    </div>
+  </form>
+
+  <div class='proyecto-form-part2'>
+    <iframe name='ubicacion' class='ubicacion' src="{% url 'admin:admin_proyecto_location' proyecto_id %}"></iframe>
+    <iframe name='add_fotos' class='fotos_videos' src="{% url 'admin:admin_proyecto_add_fotos' proyecto_id %}"></iframe>
+    <iframe name='add_videos' class='fotos_videos' src="{% url 'admin:admin_proyecto_add_videos' proyecto_id %}"></iframe>
+    <iframe name='add_caracteriticas' class='caracteristicas' src="{% url 'admin:admin_proyecto_add_caracteristica' proyecto_id %}"></iframe>
+    <iframe name='add_beneficios' class='beneficios' src="{% url 'admin:admin_proyecto_add_beneficio' proyecto_id %}"></iframe>
+    <iframe name='add_contacto' class='contacto' src="{% url 'admin:admin_proyecto_add_contacto' proyecto_id %}"></iframe>
+  </div>
+
+</div>
+{% endblock %}

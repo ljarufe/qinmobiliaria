@@ -1,0 +1,13 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+    <p>
+        {{ sitio.domain }} | Recuperar contraseña
+    </p>
+    <p>Ustéd solicitó recuperar su cuenta, para hacerlo haga click en el link que se muestra abajo para cambiar su contraseña a la siguiente: <strong>{{ password }}</strong></p>
+    <p>
+        <a href="http://{{ sitio.name }}/usuarios/cambio_password/{{ cliente.clave_activacion }}/{{ password }}/">Cambiar mi contraseña</a>
+    </p>
+    <p>Luego de dar click al enlace le recomendamos que cambie su contraseña dentro del perfil de su cuenta, a la que puede ingresar por <a href="http://{{ sitio.name }}/usuarios/">aquí</a>, luego de hacer Login con la contraseña que le enviamos.</p>
+    <p>Si ustéd no solicitó su cambio de contraseña ignore este mensaje.</p>
+{% endblock %}

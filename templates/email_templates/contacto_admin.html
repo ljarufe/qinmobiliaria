@@ -1,0 +1,30 @@
+{% extends "email_templates/base_mail.html" %}
+
+{% block body %}
+{% if noAdminsAssociated %}
+<h1><b>HA RECIBIDO ESTE MAIL DEBIDO A QUE NINGÚN ADMINISTRADOR COMERCIAL ESTÁ ASOCIADO A ESTE PROYECTO. CONTACTE A LOS ADMINISTRADORES DE '{{sitio.name}}' PARA RESOLVER ESTE INCONVENIENTE.</b></h1>
+{% endif %}
+<p>
+  El Sr(a). {{ cliente.usuario.get_full_name }} con e-mail {{ cliente.usuario.email }} envió el siguiente mensaje relacionado al proyecto {{proyecto}}:
+</p>
+<p>
+  "{{ mensaje }}"
+</p>
+<p>
+  Lo{{ cliente.telefonos.all|pluralize }} teléfono{{ cliente.telefonos.all|pluralize }} de contacto del cliente son:
+  <ul>
+    {% for telefono in cliente.telefonos.all %}
+    <li>
+      {{ telefono.numero }}: {{ telefono.tipo_telefono }}
+    </li>
+    {% endfor %}
+  </ul>
+  
+  {% if cliente.rubros.all.count == 1 %}
+  El rubro de interés del cliente es:
+  {% else %}
+  Los rubros de interés del cliente son:
+  {% endif %}
+  <ul>{{cliente.rubros.all|unordered_list}}</ul>  
+</p>
+{% endblock %}

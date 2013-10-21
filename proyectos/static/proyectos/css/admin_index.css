@@ -1,0 +1,8 @@
+.emaillink {
+    background: url('../img/admin/email_icon.png') no-repeat scroll 0 0.2em transparent;
+    padding-left: 12px;
+}
+.downloadlink {
+    background: url('../img/admin/download_icon.png') no-repeat scroll 0 0.1em transparent;
+    padding-left: 12px;
+}

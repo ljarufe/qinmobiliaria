@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Ayuda para crear áreas de interés{% endblocktrans %}{% endblock %}
+
+{% block body %}
+<div class="box">
+    <h1>{% blocktrans %}Ayuda para crear áreas de interés{% endblocktrans %}</h1>
+    <ol>
+        <li>
+            <h2>{% blocktrans %}Seleccione el primer vértice{% endblocktrans %}</h2>
+            <p>{% blocktrans %}Ubique la zona en la que desee buscar.{% endblocktrans %}</p>
+            <p>{% blocktrans %}Haga click en el mapa en el vértice superior izquierdo o en el vértice inferior derecho del área. Una marca se colocará sobre el mapa en el punto seleccionado como se muestra en la figura a continuación.{% endblocktrans %}</p>
+            <div>
+                <img src="{{ STATIC_URL }}common/img/ayuda_areas1.png" alt="">
+            </div>
+        </li>
+        <li>
+            <h2>{% blocktrans %}Seleccione el segundo vértice{% endblocktrans %}</h2>
+            <p>{% blocktrans %}Si seleccionó el vértice superior izquierdo ahora haga click en la inferior derecha.{% endblocktrans %}</p>
+            <p>{% blocktrans %}Si fué el vértice inferior derecho ahora haga click en la superior izquierda.{% endblocktrans %}</p>
+            <p>{% blocktrans %}El área en medio de ambos vértices se sombreará, se le notificará de los proyectos que se creen en esta área en el rubro que ha seleccionado.{% endblocktrans %}</p>
+            <div>
+                <img src="{{ STATIC_URL }}common/img/ayuda_areas2.png" alt="">
+            </div>
+        </li>
+        <li>
+            <h2>{% blocktrans %}Modificar el área de interés{% endblocktrans %}</h2>
+            <p>{% blocktrans %}Haga click sobre uno de los vértices del área y sin soltarlo arrátrelo a su nueva posición.{% endblocktrans %}</p>
+            <div>
+                <img src="{{ STATIC_URL }}common/img/ayuda_areas3.png" alt="">
+            </div>
+        </li>
+        <li>
+            <h2>{% blocktrans %}Crear nuevas áreas de interés{% endblocktrans %}</h2>
+            <p>{% blocktrans %}Siga los pasos anteriores en otra parte del mapa que sea de interés para crear nuevas áreas{% endblocktrans %}.</p>
+            <div>
+                <img src="{{ STATIC_URL }}common/img/ayuda_areas4.png" alt="">
+            </div>
+        </li>
+        <li>
+            <h2>{% blocktrans %}Borrar un área de interés{% endblocktrans %}</h2>
+            <p>{% blocktrans %}Haga click sobre el ícono de cerrar en la esquina superior derecha del área que desea eliminar{% endblocktrans %}.</p>
+            <div>
+                <img src="{{ STATIC_URL }}common/img/ayuda_areas5.png" alt="">
+            </div>
+        </li>
+    </ol>
+</div>
+{% endblock %}

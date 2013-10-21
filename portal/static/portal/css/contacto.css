@@ -1,0 +1,52 @@
+h2 {
+    color: #cf1131;
+    font-size: 20px;
+}
+textarea {
+    width: 170px;
+    height: 130px;
+}
+.form-registro {
+    padding: 10px 0 0 30px;
+}
+    .form-registro img {
+        float: right;
+    }
+.telefono_li {
+    float: left;
+}
+    .telefono_li input {
+        width: 110px;
+    }
+.map {
+    padding: 10px 0 0 30px;
+}
+    .map div {
+        margin: 0 40px 10px 0;
+        text-align: right;
+    }
+    .map .titulo {
+        padding: 0 0 0 25px;
+        background: url("/static/common/img/Mundito pop up.png") no-repeat left;
+        color: #cf1131;
+        font-size: 17px;
+    }
+.base_telefono{
+    width: 360px;
+}
+    .base_telefono label{
+        display: block;
+        float: left;
+        width: 70px;
+        margin-top: 6px;
+    }
+    .base_telefono input{
+        float: left;
+        margin-right: 20px;
+    }
+.pad_left_20{
+    padding-left: 20px;
+}
+.change_pass {
+    display: none;
+}

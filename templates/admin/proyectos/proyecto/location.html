@@ -1,0 +1,240 @@
+{% extends "admin/basic.html" %}
+{% load i18n %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&region=PE"></script>
+<script type="text/javascript">
+   var map;
+   var marker;
+   var newRefMarker = new google.maps.Marker({
+       icon: '{{STATIC_URL}}proyectos/img/admin/reference.png',
+       draggable: true
+     });
+
+   var latitud;
+   var longitud;
+   var markersArray = [];
+
+   function update_lat_long(location){
+     location_form = document.getElementById('location_Form');
+     location_form['id_latitud'].value=location.lat();
+     location_form['id_longitud'].value=location.lng();
+   }
+   function update_lat_long_ref(location){
+     location_form = document.getElementById('reference_form');
+     location_form['id_latitud'].value=location.lat();
+     location_form['id_longitud'].value=location.lng();     
+   }
+   function loadAllReferences(){
+     {% for r in refList %}
+       var markerRef{{forloop.counter}} = new google.maps.Marker({
+         position: new google.maps.LatLng(parseFloat('{{r.latitud|safe}}'),
+                                          parseFloat('{{r.longitud|safe}}')),
+         map:map,
+         title: '{{r}}',
+         icon: "{{r.icono.extra_thumbnails.gmap.absolute_url}}",
+         draggable: true
+       });
+     {% endfor %}
+   }
+
+   function initialize() {
+     latitud = '{{latitud|safe}}';
+     longitud = '{{longitud|safe}}';
+     if (latitud == ''){
+       latitud = -16.3987;
+     }
+     else{
+       latitud = parseFloat(latitud)
+     }
+     if (longitud == ''){
+       longitud = -71.5369;
+     }
+     else{
+       longitud =  parseFloat(longitud)
+     }
+     var mapDiv = document.getElementById('map-canvas');
+     var latInitial = new google.maps.LatLng(latitud, longitud);
+     var InitialOptions = {
+       center: latInitial,
+       zoom: 13,
+       mapTypeId: google.maps.MapTypeId.ROADMAP       
+     }
+     map = new google.maps.Map(mapDiv, InitialOptions);
+
+     var content1 = 'Arrastre el marcador<br/>hasta la posición del proyecto';
+     var infowindow1 = new google.maps.InfoWindow({
+       content: content1
+     });
+     var content2 = 'Arrastre el marcador al<br/>lugar exacto de la referencia';
+     var infowindow2 = new google.maps.InfoWindow({
+       content: content2
+     });
+     marker = new google.maps.Marker({
+       map: map,
+       position: latInitial,
+       draggable: true
+     });
+
+     update_lat_long(latInitial);
+
+     infowindow1.open(map, marker);
+     infowindow2.open(map, newRefMarker);
+     loadAllReferences();
+
+     google.maps.event.addListener(map, 'click', function(event){
+       placeMarker(event.latLng);
+     });
+     google.maps.event.addListener(marker, 'dragend', function(event){
+       centerMapAfterDragMarker(event.latLng);
+     });
+     google.maps.event.addListener(newRefMarker, 'dragend', function(event){
+       update_lat_long_ref(event.latLng);
+     });
+
+     {% if formRef.errors %}
+       addRefMarker();
+     {% endif %}
+
+   }
+
+   function centerMapAfterDragMarker(location){
+     map.setCenter(location);
+     update_lat_long(location);
+   }
+   function placeMarker(location){
+     marker.setPosition(location);
+     map.setCenter(location);
+     update_lat_long(location);
+   }
+   function addRefMarker(){
+     newRefMarker.setMap(map);
+     var latitudRef = '{{latitudRef}}';
+     var longitudRef = '{{longitudRef}}';
+     if (latitudRef == ''){
+       var latRef = map.getCenter();
+     }
+     else{
+       var latRef = new google.maps.LatLng(parseFloat(latitudRef),
+                                           parseFloat(longitudRef));
+     }     
+     newRefMarker.setPosition(latRef);
+   }
+   function addMarker(image, title){
+     mrkr = new google.maps.Marker({
+       position: map.getCenter(),
+       map: map,
+       icon: image,
+       title: title,
+       draggable: true
+     });
+     markersArray.push(mrkr);
+   }
+
+  google.maps.event.addDomListener(window, 'load', initialize);
+
+  $(document).ready(function() {      
+    {% if not formRef.errors %}
+      $('form#reference_form').hide();
+    {% else %}
+      $('div#addReferencia').hide();
+    {% endif %}
+
+    $('input#addReferencia').click(function(event){
+      event.preventDefault();
+      addRefMarker();
+      $('div#addReferencia').hide('slow');
+      $('form#reference_form').show('slow');
+    });
+    
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+
+  {% if success %}
+    <ul class="messagelist">
+      <li class="info">La ubicación fue establecida con éxito</li>
+    </ul>
+  {% endif %}
+
+  {% block form_top %} <h1>{% trans 'Add' %} Localización</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Localization Form -->
+      <form id='location_Form' enctype='multipart/form-data' action="" method="post">{% csrf_token %}
+      <div class='form-row'>
+	{{form.non_field_errors}}
+	{{form.direccion.errors}}
+	{{form.direccion.label_tag}}{{form.direccion}}
+	{{form.latitud.errors}}
+	{{form.latitud}}
+	{{form.longitud.errors}}
+	{{form.longitud}}
+      </div>
+      <div class='form-row'>
+	<div id='map-canvas'>
+	</div>
+      </div>
+    </div>
+    <div class='proyecto-form-col2'>
+      <div class='form-row'>
+	{{form.provincia.errors}}
+        {{form.provincia.label_tag}}{{form.provincia}}
+      </div>
+      <div class="submit-row">
+	<input class="default" type="submit" name="localizacion" value="Guardar Localización">
+      </div>
+      </form>
+      <!-- End Add Localizacion Form -->
+      <!-- Begin add references form -->
+      {% if showAddRef %}
+
+      {% if successRef %}
+      <ul class="messagelist">
+	<li class="info">La referencia fue colocada</li>
+      </ul>
+      {% endif %}
+      <h1>{% trans 'Add' %} Referencia</h1>
+      <div class="submit-row" id='addReferencia'>
+        <input id="addReferencia" class="default" type="submit" name="_save" value="Crear Nueva Referencia">
+      </div>
+      <form id='reference_form' enctype='multipart/form-data' action='' method='post'>{% csrf_token %}
+	<fieldset class='module aligned'>
+	  <div class='form-row'>
+	    {{formRef.non_field_errors}}
+	    {{formRef.nombre.errors}}
+	    {{formRef.nombre.label_tag}}{{formRef.nombre}}
+	    {{formRef.latitud}}
+	    {{formRef.longitud}}
+	  </div>
+	  <div class='form-row'>
+	    {{formRef.icono.errors}}
+	    {{formRef.icono.label_tag}}{{formRef.icono}}
+	  </div>
+	  <div class='form-row'>
+	    {{formRef.descripcion.errors}}
+	    {{formRef.descripcion.label_tag}}{{formRef.descripcion}}
+	  </div>
+	</fieldset>
+	<div class="submit-row">
+	  <input class="default" type="submit" name="referencia" value="Guardar Referencia">
+	</div>
+      </form>
+
+      {% endif %}
+      <!-- End add references form -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

@@ -1,0 +1,325 @@
+{% load simpleTags thumbnail etapas humanize %}
+<html>
+<style>
+@page {
+  size: a4;
+  margin: 1cm;
+  margin-bottom: 2.0cm;
+  margin-top: 3.5cm;
+  background-image: url({{logoW}});
+  @frame headerleft {
+    -pdf-frame-content: headerleftContent;
+    height: 2.5cm;
+    top: 0.6cm;
+    border: 0cm;
+    margin-left: 0.2cm;
+  }
+  @frame headerright {
+    -pdf-frame-content: headerrightContent;
+    height: 2.5cm;
+    top: 0.6cm;
+    border: 0cm;
+    margin-right: 0.2cm;
+  }
+  {% comment %}
+  @frame middle {
+    -pdf-frame-content: middleContent;
+    margin-top: 4cm;
+    margin-left: 2cm;
+    margin-right: 2cm;
+  }
+  {% endcomment %}
+  @frame footer {
+    -pdf-frame-content: footerContent;
+    -pdf-frame-border: 1;
+    bottom: 0cm;
+    margin: 0cm;
+    height: 2cm;
+  }
+  @frame pageNumber {
+    -pdf-frame-content: pageNumberContent;
+    bottom: 1.5cm;
+    margin: 0cm;
+    height: 1cm;
+  }
+
+}
+body{
+  font-size: 14px;
+  color: #383336;
+  text-align: justify;
+}
+div#footerContent{
+  background-color: #383336;
+  color: #ffffff;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: 'center';
+}
+div#pageNumberContent{
+  text-align: 'right';
+  margin-right: 1cm;
+  font-size: 15px;
+}
+
+div#headerleftContent{
+  text-align: 'left';
+}
+div#headerrightContent{
+  text-align: 'right';
+}
+div#middleContent{
+  margin-left: 1cm;
+  margin-right: 1cm;
+}
+div.foto{
+  text-align: center;
+  padding-bottom: 15px;
+}
+div.foto_description{
+  text-align: justify;
+}
+h1{
+  text-align: center;
+  font-weight: bolder;
+}
+span{
+  font-weight: bold;
+}
+h2{
+  font-weight: bolder;
+  color: #a7a9ac;
+}
+div.planos_leyenda{
+  text-align: middle;
+}
+div.ini_space{
+  height: 100px;
+  display: block;
+}
+div.fotos_space{
+  height: 200px;
+  display: block;
+}
+
+</style>
+<body>
+
+    <div id="headerleftContent">
+      {% comment %}
+      ESTAS IMAGENES EN EL HEADER FUNCIONAN CUANDO LA IMAGEN APUNTADA
+      NO SOBREPASA EL ALTO DEFINIDO EN EL TEMPLATE
+      {% endcomment %}
+      {% if logo %}<img src="{{logo}}">{% endif %}
+    </div>
+    <div id="headerrightContent">
+      <img src='{{logoI}}'>
+    </div>
+
+  <div id="middleContent">
+    <div class="ini_space">&nbsp;</div>
+    <h1>{{obj.nombre}}</h1>
+    <p><span>Rubro :</span> {{obj.rubro}}</p>
+    <p><span>Estado :</span>
+      {% if obj.estado == 'B' %}
+        Borrador
+      {% else %}
+        {% if obj.estado == 'A' %}
+          Activo
+        {% else %}
+          Terminado
+        {% endif %}
+      {% endif %}
+    </p>
+    <p>{{obj.introduccion}}</p>
+    {% if obj.resumen %}
+    <h2>RESUMEN</h2>
+    <p>{{obj.resumen}}</p>
+    {% endif %}
+
+    {% if fotosList %}
+    <pdf:nextpage>    
+    <p>
+    <h2>FOTOS</h2>
+      {% for foto in fotosList %}
+        <div class="foto">
+	  <img src="{{MEDIA_ROOT}}..{% thumbnail foto.imagen 380x380 %}">
+	  <br/><span>{{foto.nombre}}</span><br/>
+	  {% if foto.descripcion %}
+  	  <div class="foto_description">
+	    {{foto.descripcion}}
+	  </div>	  
+	  {% else %}
+	  <div class="fotos_space">&nbsp;</div>
+	  <div class="fotos_space">&nbsp;</div>
+	  {% endif %}
+	</div>
+      {% endfor  %}
+    </p>
+    {% endif  %}
+
+    {# AQUI IBAN LAS CARACTERISTICAS #}
+
+    {% if obj.latitud and obj.longitud %}
+    <pdf:nextpage>
+    <h2>UBICACIÓN</h2>
+    <div class="fotos_space">&nbsp;</div>
+    <p><span>Dirección :</span> {{obj.direccion}}</p>
+    <p>
+      {% comment %}
+      <img border="0" alt="Puntos de interés en Lower Manhattan" src="http://maps.google.com/maps/api/staticmap?center={{obj.latitud}},{{obj.longitud}}&zoom=16&size=650x500&sensor=false&format=png32&maptype=hybrid&markers=color:red|label:S|{{obj.latitud}},{{obj.longitud}}">
+      {% endcomment %}
+      <img border="0" src="{{MEDIA_ROOT}}..{{obj.gmaps_image}}">
+      <p>
+      <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/red_MarkerS.png">
+      Posición del proyecto
+      </p>
+      <p>
+      <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/yellow_MarkerR.png">
+      Posición de los puntos de referencia
+      </p>
+    </p>
+    {% endif %}
+
+    {% if caracList %}
+    <pdf:nextpage>
+    <h2>CARACTERÍSTICAS</h2>
+    <p>
+      <ul>
+        {% for c in caracList %}
+	<li><span>{{c.nombre}} :</span> {{c.descripcion}}</li>
+        {% endfor %}
+      </ul>
+    </p>
+    <p><span>Área :</span> {{obj.area}}<p>
+    <p><span>Área Construida :</span> {{obj.area_construida}}</p>
+    {% endif %}
+
+
+    {% if benefList %}
+      {% if not caracList %}
+        <pdf:nextpage>
+      {% endif %}
+    <p><h2>BENEFICIOS</h2>
+      <ul>
+        {% for c in benefList %}
+	<li>{{c.descripcion}}</li>
+        {% endfor %}
+      </ul>
+    </p>
+    {% endif %}
+
+    {% if etapasList %}
+      {% if not caracList and not benefList %}
+        <pdf:nextpage>
+      {% endif %}
+    <p><h2>ETAPAS</h2>
+      {% for etapa in etapasList %}
+        {% get_all_subEtapas etapa as subEtapasList %}
+        <p>
+	  <span>{{etapa}}</span><br/>
+	  {{etapa.descripcion}}
+	  <ul>
+	    <li>Subetapas:
+              <ol>
+		{% for se in subEtapasList %}
+		<li>{{se.titulo}}</li>
+		{% endfor %}
+	      </ol>
+	    </li>
+	  </ul>
+	</p>
+      {% endfor %}
+    </p>
+    {% endif %}
+    
+    {% if obj.fecha_inicio %}
+      {% if not caracList and not benefList and not etapasList %}
+        <pdf:nextpage>
+      {% endif %}
+      <p><span>Fecha inicio :</span> {{obj.fecha_inicio}}</p>
+    {% endif %}
+    {% if obj.fecha_fin %}
+      {% if not caracList and not benefList and not etapasList and not obj.fecha_inicio %}
+        <pdf:nextpage>
+      {% endif %}      
+      <p><span>Fecha fin :</span> {{obj.fecha_fin}}</p>
+    {% endif %}
+    {% if obj.avance %}
+      {% if not caracList and not benefList and not etapasList and not obj.fecha_inicio and not obj.fecha_fin %}
+        <pdf:nextpage>
+      {% endif %}      
+      <p><span>Avance :</span> {{obj.avance}} %</p>
+    {% endif %}
+    {% if obj.precio_minimo %}
+      {% if not caracList and not benefList and not etapasList and not obj.fecha_inicio and not obj.fecha_fin and not obj.avance %}
+        <pdf:nextpage>
+      {% endif %}            
+      <p><span>Precios desde :</span> $./ {{obj.precio_minimo|intcomma}}</p>
+    {% endif %}
+    {% if planosList %}
+    <pdf:nextpage>
+    <p>
+    <h2>PLANOS</h2>
+      {% for p in planosList %}
+        <div class="foto">
+	  {% comment %}
+	  <img src="{{MEDIA_ROOT}}..{% thumbnail p.plano_dibujado 640x640 %}">
+	  <img src="{{MEDIA_ROOT}}..{{p.plano_dibujado.url}}" width="800px" height="678px">
+	  <img src="{{MEDIA_ROOT}}..{{p.plano_dibujado.extra_thumbnails.plano_size}}">
+
+	  {{p.plano_dibujado.extra_thumbnail.plano_size}}
+	  <img src="{{MEDIA_ROOT}}..{{p.plano_dibujado.extra_thumbnails.big_pdf_size}}">
+
+	  {% endcomment %}
+	  <span>{{p.titulo}}</span><br/><br/>
+	  <img src="{{MEDIA_ROOT}}..{{p.plano_dibujado.url}}" height='990px'>
+
+	  <div class="planos_leyenda">
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/verde.png">
+	    &nbsp;&nbsp;Disponible
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/amarillo.png">
+	    &nbsp;&nbsp;Separado
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/rojo.png">
+	    &nbsp;&nbsp;Vendido
+	  </div>
+	  {% if p.descripcion %}
+	  {% comment %}<pdf:nextpage>{% endcomment %}
+  	  <div class="foto_description">
+	    {{p.descripcion}}
+	  </div>
+	  {% endif %}
+	</div>
+	<pdf:nextpage>
+      {% endfor  %}
+    </p>
+    {% endif  %}
+    {% if showContact %}
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+    <div class="fotos_space">&nbsp;</div>
+
+    <h2>TELÉFONOS DE CONTACTO</h2>
+    {% get_all_telephones %}
+    {% endif %}
+  </div>
+  <div id="pageNumberContent">
+    <pdf:pagenumber>
+  </div>
+  <div id="footerContent">
+    {% if contacto %}
+      Informes: {{contacto.direccion}}
+      <br/>  
+      {% get_3_telephones %}&nbsp;&nbsp;{{contacto.email}}
+    {% endif %}
+  </div>
+</body>
+</html>

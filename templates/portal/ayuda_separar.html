@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Ayuda para separar lotes{% endblocktrans %}{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <h1>{% blocktrans %}Ayuda para separar lotes{% endblocktrans %}</h1>
+        <ol>
+            <li>
+                <h2>{% blocktrans %}Seleccionar la pestaña Planos{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Abra el perfil de un proyecto y en las pestañas de: Fotos, Videos, Plano y Ubicación, seleccione la de planos.{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/separar_1.png" alt="">
+                </div>
+            </li>
+            <li>
+                <h2>{% blocktrans %}Seleccione el plano y el lote{% endblocktrans %}</h2>
+                <p>{% blocktrans %}En la parte derecha seleccione una de las miniaturas de los planos si es que hay mas de una.{% endblocktrans %}</p>
+                <p>{% blocktrans %}En el plano los lotes verdes están disponibles, seleccione uno de ellos para separarlo.{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/separar_2.png" alt="">
+                </div>
+            </li>
+            <li>
+                <h2>{% blocktrans %}Haga click en Separar{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Al hacer click en uno de los lotes una ventana de información sobre el lote aparecerá sobre el mapa, haga click en el botón Separar.{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/separar_3.png" alt="">
+                </div>
+            </li>
+            <li>
+                <h2>{% blocktrans %}Envíe la solicitud{% endblocktrans %}</h2>
+                <p>{% blocktrans %}Para poder separar un lote tiene que haber iniciado sesión.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Los datos del lote se visualizarán y en la parte de abajo puede escribir un mensaje adicional antes de darle click a "Enviar Solicitud".{% endblocktrans %}</p>
+                <div>
+                    <img src="{{ STATIC_URL }}common/img/separar_4.png" alt="">
+                </div>
+            </li>
+        </ol>
+    </div>
+{% endblock %}

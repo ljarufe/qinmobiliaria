@@ -1,0 +1,51 @@
+{% extends "proyectos/iframes/base_slider.html" %}
+
+{% load watermark concatenate %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.over-slider.js"> </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".slider-tab").OverSlider({
+                controls_container: $(".controls_container"),
+                height: 350
+            });
+            $(".slider-tab, .controls_container>*").mouseenter(function() {
+                $(".nav").show();
+            });
+            $(".slider-tab, .controls_container>*").mouseleave(function() {
+                $(".nav").hide();
+            });
+        })
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="iehack">
+      {% if fotos %}
+      <div class="controls_container"></div>
+      {% endif %}
+    </div>
+
+    <div class="slider-tab">
+        <div>
+            <div title="{{ nombre_proyecto   }}" class="sliderImg">
+{#                {% concatenate proyecto_id "position=C,opacity=15,scale=1,tile=0" as opciones %}#}
+{#                <img src="{{ foto_principal.extra_thumbnails.big.absolute_url|watermark:opciones }}" />#}
+                <img src="{{ foto_principal.extra_thumbnails.big }}" />
+            </div>
+        </div>
+    {% for foto in fotos %}
+        <div>
+            <div title="{{ foto.descripcion }}" class="sliderImg">
+{#                {% concatenate proyecto_id "position=C,opacity=15,scale=1,tile=0" as opciones %}#}
+{#                <img src="{{ foto.imagen.extra_thumbnails.big.absolute_url|watermark:opciones }}" />#}
+                <img src="{{ foto.imagen.extra_thumbnails.big }}" />
+            </div>
+            <div class="nombre">
+                <h3>{{ foto.nombre }}</h3>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

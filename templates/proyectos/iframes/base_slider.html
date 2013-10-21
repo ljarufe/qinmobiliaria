@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        {% block head %}{% endblock %}
+        <link rel="stylesheet" href="{{ STATIC_URL }}portal/css/iframe_slider.css">
+	<!--[if IE 7]><link rel="stylesheet" href="{{ STATIC_URL }}portal/css/iframe_slider_ie7_hacks.css"><![endif]-->
+	<!--[if IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}portal/css/iframe_slider_ie8_hacks.css"><![endif]-->
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>

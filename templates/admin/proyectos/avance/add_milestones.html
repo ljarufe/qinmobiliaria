@@ -1,0 +1,139 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail adminmedia %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+    <!-- begin django admin date picker -->
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/core.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/widgets.css"/>
+    <script type="text/javascript">
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    {{form.media}}
+    <!-- end django admin date picker -->
+
+<script type="text/javascript">
+  $(document).ready(function() {      
+
+    $('a.changelink').click(function(event){
+      event.preventDefault();
+      var request = $.ajax({
+               url: "{% url admin:admin_avance_ajax_edit_milestone %}",
+               type: "POST",
+               data: {id:$(this).attr('alt')}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('input#id_titulo').attr('value',res['titulo']);
+        $('input#id_id').attr('value',res['id']);
+        $('input#id_avance').attr('value',res['id_avance']);
+        $('input#id_subetapa').attr('value',res['id_subetapa']);
+        $('input#id_fecha_fin').attr('value',res['fecha_fin']);
+        $('input#id_porcentaje').attr('value',res['porcentaje']);
+        if (res['alcanzado'] == true ){
+          $('input#id_alcanzado').attr('checked','checked');
+        }else{
+          $('input#id_alcanzado').removeAttr('checked');
+        }
+      });      
+    });
+
+    $('a.deletelink').click(function(event){
+      event.preventDefault();
+      var Id = $(this).attr('alt')
+      var request = $.ajax({
+               url: "{% url admin:admin_avance_ajax_delete_milestone %}",
+               type: "POST",
+               data: {id:Id}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('tr#'+Id).hide('slow');
+        $('ul#delMilestone').show();
+      });
+    });
+
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  {% if add_success %}
+    <ul class="messagelist">
+      <li class="info">El Milestone fue agregado</li>
+    </ul>
+  {% endif %}
+  <ul id='delMilestone' class="messagelist no-display">
+    <li class="info">El Milestone fue eliminado</li>
+  </ul>
+
+  {% block form_top %} <h1>{% trans 'Add' %} Milestone</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Milestone Form -->
+      <form id='milestoneForm'  action="" method="post">{% csrf_token %}
+	<div class='form-row'>
+	  {{form.non_field_errors}}
+	  {{form.titulo.errors}}
+	  {{form.titulo.label_tag}}
+	  {{form.titulo}}
+	  {{form.id}}
+	  {{form.avance}}
+	  {{form.subetapa}}
+	</div>
+	<div class='form-row'>
+	  {{form.fecha_fin.errors}}
+	  {{form.fecha_fin.label_tag}}
+	  {{form.fecha_fin}}
+	</div>
+	<div class='form-row'>
+	  {{form.porcentaje.errors}}
+	  {{form.porcentaje.label_tag}}
+	  {{form.porcentaje}}
+	</div>
+	<div class='form-row'>
+	  {{form.alcanzado.errors}}
+	  {{form.alcanzado.label_tag}}
+	  {{form.alcanzado}}
+	</div>
+
+	<div class="submit-row">
+          <input class="default" type="submit" name="save" value="{% trans 'Save' %}">
+	</div>
+      </form>
+      <!-- End Add Milestone Form -->
+    </div>
+    <div class='proyecto-form-col2'>
+      <!-- Begin edit delete tool -->
+      <h1>Lista de Milestones asociados al avance</h1>
+      <div class="milestone_list">
+	<fieldset class='module'>
+	  <table class='milestone_list'>
+	    {% for c in milestoneList %}
+	    <tr id='{{c.id}}'>
+	      <td class='first'>{{c}}</td>
+	      <td class='second'>{{c.porcentaje}} %</td>
+	      <td class='third'>
+		<img{% if c.alcanzado %} alt='Alcanzado' title='Alcanzado' src='{{STATIC_URL}}admin/img/admin/icon-yes.gif' {% else %} alt='No Alcanzado' title='No Alcanzado' src='{{STATIC_URL}}admin/img/admin/icon-no.gif' {% endif%}><td>
+	      <td><a class='changelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Edit' %}</a></td>
+	      <td><a class='deletelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Delete' %}</a></td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</fieldset>
+      </div>
+      <!-- End edit delete tool -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

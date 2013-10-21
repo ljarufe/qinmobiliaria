@@ -1,0 +1,139 @@
+.busqueda {
+    text-align: center;
+    padding-top: 30px;
+}
+    .busqueda table td.tipo{
+        text-align:center;
+        padding-bottom: 10px;
+    }
+    .busqueda table td {
+        text-align: center;
+    }
+        .busqueda table td input[type=text] {
+            width: 145px;
+        }
+        .busqueda table .get_ubicacion input {
+            width: 115px !important;
+        }
+        .busqueda table .input_box {
+            padding-left: 10px;
+        }
+    .busqueda select{
+        width: 158px;
+        color: #595959;
+        margin: 3px 0 3px 0;
+        padding: 4px 2px;
+        border: 1px solid #cbcbcb;
+        border-right-color: #b4b4b4;
+        border-bottom-color: #b4b4b4;
+        background: rgb(230,230,230); /* Old browsers */
+        background: -moz-linear-gradient(top, rgba(230,230,230,1) 63%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(63%,rgba(230,230,230,1)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top, rgba(230,230,230,1) 63%,rgba(255,255,255,1) 100%); /* IE10+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e6e6e6', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+
+    }
+.get_ubicacion {
+    margin-left: -3px;
+    vertical-align: -10px;
+    cursor: pointer;
+    height: 29px;
+}
+.slider-tab {
+}
+    .slider-tab div{
+        height: 320px;
+        overflow: hidden;
+    }
+    .slider-tab a:link, .slider-tab a:visited {
+        color: #ffff99;
+        text-decoration: none;
+    }
+    .slider-tab a:hover, .slider-tab a:active {
+        color: white;
+        text-decoration: none;
+    }
+        .slider-tab div div div {
+            padding: 5px 15px 5px 15px;
+            background: black;
+            opacity: 0.5;
+            text-align: right;
+            margin-top: -30px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .slider-tab div div div a {
+            z-index: 10;
+        }
+    .slider-tab ul {
+        float: left;
+        background: #cf1131;
+        padding: 0;
+        color: white;
+        width: 100%;
+        margin-bottom: 0;
+    }
+        .slider-tab ul li {
+            float: left;
+            padding: 5px 20px;
+            border-left: 1px solid #f03856;
+            border-right: 1px solid #c00827;
+            cursor: pointer;
+            max-width: 200px;
+        }
+            .slider-tab ul .slider-activo h3,
+            .slider-tab ul .slider-activo span {
+                color: #ffff99;
+            }
+        .slider-tab li:first-child {
+            border-left: none;
+        }
+        .slider-tab li:last-child {
+            border-right: none;
+        }
+        .slider-tab h3 {
+            line-height: normal;
+            margin-bottom: 0;
+            color: white;
+            font-size: 14px;
+        }
+#ubicacion_map {
+    width: 555px;
+    height: 400px;
+    background: white;
+    padding: 10px;
+}
+.lower_price_box{
+    margin-left: 15px;
+}
+.prices_bar {
+    text-align: center;
+    width: 130px !important;
+}
+.submit_row {
+    margin-top: 80px;
+    padding-left: 15px;
+    padding-top: 10px;
+    text-align: center;
+}
+    .submit_row .submit_buscar {
+        padding: 14px 31px 14px 49px;
+        font-size: 20px;
+        font-weight: bold;
+        background-image: url("/static/common/img/lupa-buscar.png");
+        background-repeat: no-repeat;
+        background-position: 30px 17px;
+    }
+/* hacks any firefox */
+@-moz-document url-prefix(){
+    .get_ubicacion {height: 30px; vertical-align: -10px;}
+}
+/* hacks only for opera */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+    /* head~body .va-container {left:464px !important;} */
+    head~body .get_ubicacion {height: 28px;}
+}
+/* hacks ie8 ie9  */
+.get_ubicacion {height: 29px\0/; vertical-align: -11px\0/;}

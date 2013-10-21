@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/ayuda.css" />
+{% endblock %}
+
+{% block body %}
+    <div class="box">
+        <h1>FAQ's</h1>
+        {{ flatpage.content }}
+    </div>
+{% endblock %}

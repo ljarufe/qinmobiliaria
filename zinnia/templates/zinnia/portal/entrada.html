@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% load i18n comments zinnia_tags tagging_tags truncate %}
+
+{% block title %}{{ entry.title }}{% endblock %}
+
+{% block head %}
+    <meta property="og:title" content="{{ entry.title }}" />
+    <meta property="og:description" content="{{ entry.content }}" />
+    <meta property="og:image" content="{{ entry.image.extra_thumbnails.small_preview }}" />
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}zinnia/css/entrada.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#tabs").tabs();
+
+            // RSS Feed no es soportado por Google Chrome
+            if(navigator.userAgent.indexOf('Chrome') != -1) {
+                // TODO: Comprobar si la extensión está instalada y darle este valor a la variable
+                var extension = false;
+                $(".suscripcion").attr("href", "https://chrome.google.com/webstore/detail/nlbjncdgjeocebhnmkbbbdekmmmcbfjd/");
+
+                $(".suscripcion").click(function() {
+                    if(!extension) {
+                        alert({% blocktrans %}"Luego de instalar la extensión para Google Chrome presionando el botón 'Añadir a Chrome' vuelva a dar click en el enlace de 'Suscribirme', si no la instaló anteriormente."{% endblocktrans %});
+                        extension = true;
+                    }
+                    else {
+                        $(".suscripcion").attr("href", "{% url zinnia_entry_latest_feed %}");
+                    }
+                })
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="span-23 last box">
+        <div class="span-24 last">
+            <h1>{% blocktrans %}Noticias{% endblocktrans %} / {% blocktrans %}Eventos{% endblocktrans %}</h1>
+        </div>
+        {# Panel izquierdo #}
+        <div class="span-11">
+            {# Titulo #}
+            <div class="span-11 last">
+                <div class="span-7">
+                    <h2>{{ entry.title }}</h2>
+                </div>
+                <div class="span-4 last right addthis_button">
+                    <!-- AddThis Button BEGIN -->
+                    <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4da5c6bd7f9dcd59"><img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+                    <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+                    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4da5c6bd7f9dcd59"></script>
+                    <!-- AddThis Button END -->
+                </div>
+            </div>
+            {# Proyectos relacionados #}
+            {% if entry.proyectos.all %}
+            <div class="span-11 last">
+                <h2>{% blocktrans %}Proyectos:{% endblocktrans %}
+                {% for proyecto in entry.proyectos.all %}
+                    <a href="{{ proyecto.get_absolute_url }}">{{ proyecto }}</a>{% if not forloop.last %}, {% else %}.{% endif %}
+                {% endfor %}
+                </h2>
+            </div>
+            {% endif %}
+            {% if entry.categories.all %}
+            <div class="span-11 last">
+                <h2>{% blocktrans %}Categorías:{% endblocktrans %}
+                {% for category in entry.categories.all %}
+                    <a href="{{ category.get_absolute_url }}" title="{{ category }}" rel="tag category">{{ category }}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                </h2>
+            </div>
+            {% endif %}
+            {# Fotos y videos #}
+            <div class="span-11 last">
+                <div id="tabs">
+                    <!-- Tabs -->
+                    <ul>
+                        <li class="tabs_1">
+                            <a href="#tabs-1">{% blocktrans %}Fotos{% endblocktrans %}</a>
+                        </li>
+                        <li class="tabs_2">
+                            <a href="#tabs-2">{% blocktrans %}Videos{% endblocktrans %}</a>
+                        </li>
+                    </ul>
+                    <div id="tabs-1">
+                        <iframe src="{% url slider_fotos_zinnia entry.id %}" height="310px" width="426px" frameborder="0"></iframe>
+                    </div>
+                    <div id="tabs-2">
+                        <iframe src="{% url slider_videos_zinnia entry.id %}" height="310px" width="426px" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+            {# Comentarios #}
+            <div class="span-11 last prepend-top">
+                <div id="comments">
+                    <h3>{% trans "Comments" %}</h3>
+                    {% with entry.comments as comment_list %}
+                        {% if comment_list.count %}
+                            {% for comment in comment_list %}
+                                <div class="span-11 last">
+                                    <div id="comment_{{ comment.pk }}" class="comment vcard {% cycle box1,box2 %}{% if comment.user in object.authors.all %} post-author{% endif %}">
+                                        <div class="span-2">
+                                            <img src="{% get_gravatar comment.email 60 "G" %}"
+                                                 class="gravatar photo" alt="{{ comment.user_name }}"/>
+                                        </div>
+                                        <div class="span-9 last">
+                                            <p class="comment-info">
+                                                {% if comment.url %}
+                                                    <a href="{{ comment.url }}" rel="external nofollow"
+                                                       class="fn url">{{ comment.user_name }}</a>
+                                                {% else %}
+                                                    {{ comment.user_name }}
+                                                {% endif %}
+                                                dijo el
+                                                <abbr class="comment-published" title="{{ comment.submit_date|date:"c" }}Z">
+                                                    {{ comment.submit_date }}
+                                                </abbr>
+                                            </p>
+                                            {{ comment.comment|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {% if not entry.comments_are_open %}
+                                <p>{% trans "Comments are closed." %}</p>
+                            {% endif %}
+                        {% else %}
+                            {% if entry.comments_are_open %}
+                                <p>{% trans "No comments yet." %}</p>
+                            {% else %}
+                                <p>{% trans "Comments are closed." %}</p>
+                            {% endif %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="span-11 last prepend-top comentario-form">
+                {% if entry.comments_are_open %}
+                <fieldset>
+                    <legend>{% blocktrans %}Deja tu comentario{% endblocktrans %}</legend>
+                    <form action="" method="post">
+                        <div class="span-10 last">
+                            <table>
+                                {{ form.as_table }}
+                            </table>
+                        </div>
+                        <div class="span-10 last right">
+                            <input type="submit" value="{% blocktrans %}Enviar{% endblocktrans %}" />
+                        </div>
+                    </form>
+                </fieldset>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Panel derecho #}
+        <div class="push-1 span-11 last">
+            <div class="span-11 last">
+                <div class="span-8 fecha">
+                    {% blocktrans %}Publicado el:{% endblocktrans %} <abbr class="published" title="{{ entry.creation_date|date:"c" }}Z">{{ entry.creation_date|date:"DATE_FORMAT" }}</abbr>
+                </div>
+                <div class="span-2 last right suscripcion-div">
+                    <a href="{% url zinnia_entry_latest_feed %}" class="suscripcion" target="_blank">{% blocktrans %}Suscribirme{% endblocktrans %}</a>
+                </div>
+            </div>
+            <div class="span-11 last">
+                <div class="prepend-top justify">
+                    {{ entry.content|safe }}
+                    <p class="fuente">
+                        {{ entry.fuente.get_cita|safe }}
+                    </p>
+                </div>
+                <p class="entry-tags">
+                    <span class="bold">{% blocktrans %}Palabras clave:{% endblocktrans %} </span>
+                    {% tags_for_object entry as tag_list %}
+                    {% for tag in tag_list %}
+                        <a href="{% url zinnia_tag_detail tag %}"
+                           title="Tag {{ tag }}" rel="tag">{{ tag }}</a>
+                    {% empty %}
+                        <span>{% trans "No tags" %}</span>
+                    {% endfor %}
+                </p>
+            </div>
+            <div class="span-11 last">
+                <div class="span-11 last panel_titulo">
+                    <span class="noticias">{% blocktrans %}Otras noticias{% endblocktrans %}</span>
+                </div>
+                {% for noticia in entries %}
+                <div class="span-11 last item_box">
+                    <div class="span-4">
+                        <a href="{{ noticia.get_absolute_url }}">
+                            <img src="{{ noticia.image.extra_thumbnails.small_preview }}" title="{{ noticia.title }}">
+                        </a>
+                    </div>
+                    <div class="span-7 last">
+                        <div class="span-7 last">
+                            <h2>
+                                <a href="{{ noticia.get_absolute_url }}">{{ noticia.title }}</a>
+                            </h2>
+                            <div class="justify">
+                                {{ noticia.content|safe|trunc_char:"200"|striptags|safe }}
+                            </div>
+                        </div>
+                        <div class="span-7 last right prepend-top append-bottom">
+                            <a href="{{ noticia.get_absolute_url }}" class="ver_mas">{% blocktrans %}Ver mas{% endblocktrans %}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="span-11 last prepend-top">
+                <div id="widget-tags" class="widget">
+                    <h2>{% blocktrans %}Temas{% endblocktrans %}</h2>
+                    {% get_tag_cloud %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

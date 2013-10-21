@@ -1,0 +1,268 @@
+{% load simpleTags thumbnail etapas %}
+<html>
+<style>
+@page {
+  size: a4 portrait;
+  margin: 1cm;
+  margin-bottom: 2.5cm;
+  margin-top: 3.5cm;
+  background-image: url({{logoW}});
+  @frame headerleft {
+    -pdf-frame-content: headerleftContent;
+    height: 2.5cm;
+    top: 0.5cm;
+    border: 0cm;
+    margin-left: 0.2cm;
+  }
+  @frame headerright {
+    -pdf-frame-content: headerrightContent;
+    height: 2.5cm;
+    top: 0.5cm;
+    border: 0cm;
+    margin-right: 0.2cm;
+  }
+  {% comment %}
+  @frame middle {
+    -pdf-frame-content: middleContent;
+    margin-top: 4cm;
+    margin-left: 2cm;
+    margin-right: 2cm;
+  }
+  {% endcomment %}
+  @frame footer {
+    -pdf-frame-content: footerContent;
+    {% comment %}-pdf-frame-border: 1; {% endcomment %}
+    -pdf-frame-border: 0;
+    top: 27cm;
+    bottom: 0cm;
+    margin: 0cm;
+    height: 2cm;
+  }
+  @frame pageNumber {
+    -pdf-frame-content: pageNumberContent;
+    bottom: 2.5cm;
+    margin: 0cm;
+    height: 1cm;
+  }
+
+}
+body{
+  font-size: 14px;
+  color: #383336;
+  text-align: justify;
+}
+div#footerContent{
+  background-color: #383336;
+  color: #ffffff;
+  {% comment %} padding-top: 15px; {% endcomment %}
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: 'center';
+}
+div#pageNumberContent{
+  text-align: 'right';
+  margin-right: 1cm;
+  font-size: 15px;
+}
+
+div#headerleftContent{
+  text-align: 'left';
+}
+div#headerrightContent{
+  text-align: 'right';
+}
+div#middleContent{
+  margin-left: 1cm;
+  margin-right: 1cm;
+}
+div.foto{
+  text-align: center;
+  padding-bottom: 15px;
+}
+div.foto_description{
+  text-align: justify;
+}
+h1{
+  text-align: center;
+  font-weight: bolder;
+}
+span{
+  font-weight: bold;
+}
+h2{
+  font-weight: bolder;
+}
+div.planos_leyenda{
+  text-align: middle;
+}
+</style>
+<body>
+
+    <div id="headerleftContent">
+      {% comment %}
+      ESTAS IMAGENES EN EL HEADER FUNCIONAN CUANDO EL SRC APUNTA A UNA IMAGEN
+      EN UN DOMINIO FIJO, CUADNO PRUEBO CON EL LOCAL HOST IGUAL NO FUNCA
+      ESPERO QUE CUADNO SE ESTE EN PRODUCCION ESTO SE ARREGLE
+      {% endcomment %}
+      {% if logo %}<img src="{{logo}}">{% endif %}
+    </div>
+    <div id="headerrightContent">
+      <img src="{{logoI}}">
+    </div>
+
+  <div id="middleContent">
+    <h1>{{obj.nombre}}</h1>
+    <p><span>Rubro :</span> {{obj.rubro}}</p>
+    <p><span>Estado :</span>
+      {% if obj.estado == 'B' %}
+        Borrador
+      {% else %}
+        {% if obj.estado == 'A' %}
+          Activo
+        {% else %}
+          Terminado
+        {% endif %}
+      {% endif %}
+    </p>
+    <p>{{obj.introduccion}}</p>
+    <h2>RESUMEN</h2>
+    <p>{{obj.resumen}}</p>
+    <pdf:nextpage>    
+    {% if fotosList %}
+    <p>
+    <h2>FOTOS</h2>
+      {% for foto in fotosList %}
+        <div class="foto">
+	  <img src="{{MEDIA_ROOT}}..{% thumbnail foto.imagen 380x380 %}">
+	  <br/><span>{{foto.nombre}}</span><br/>
+	  {% if foto.descripcion %}
+  	  <div class="foto_description">
+	    {{foto.descripcion}}
+	  </div>	  
+	  {% endif %}
+	</div>
+      {% endfor  %}
+    </p>
+    <pdf:nextpage>    
+    {% endif  %}
+    {% if caracList %}
+    <h2>CARACTERÍSTICAS</h2>
+    <p>
+      <ul>
+        {% for c in caracList %}
+	<li><span>{{c.nombre}} :</span> {{c.descripcion}}</li>
+        {% endfor %}
+      </ul>
+    </p>
+    <p><span>Área :</span> {{obj.area}}<p>
+    <p><span>Área Construida :</span> {{obj.area_construida}}</p>
+    {% endif %}
+    {% if obj.latitud and obj.longitud %}
+    <pdf:nextpage>
+    <h2>UBICACIÓN</h2>
+    <p><span>Dirección :</span> {{obj.direccion}}</p>
+    <p>
+      {% comment %}
+      <img border="0" alt="Puntos de interés en Lower Manhattan" src="http://maps.google.com/maps/api/staticmap?center={{obj.latitud}},{{obj.longitud}}&zoom=16&size=650x500&sensor=false&format=png32&maptype=hybrid&markers=color:red|label:S|{{obj.latitud}},{{obj.longitud}}">
+      {% endcomment %}
+      <img border="0" src="{{MEDIA_ROOT}}..{{obj.gmaps_image}}">
+      <p>
+      <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/red_MarkerS.png">
+      Posición del proyecto
+      </p>
+      <p>
+      <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/yellow_MarkerR.png">
+      Posición de los puntos de referencia
+      </p>
+    </p>
+    <pdf:nextpage>
+    {% endif %}
+    {% comment %}
+    {% if obj.beneficios %}
+    <p><h2>BENEFICIOS</h2>
+      {{obj.beneficios}}
+    </p>
+    {% endif %}
+    {% endcomment %}
+    {% if benefList %}
+    <p><h2>BENEFICIOS</h2>
+      <ul>
+        {% for c in benefList %}
+	<li>{{c.descripcion}}</li>
+        {% endfor %}
+      </ul>
+    </p>
+    {% endif %}
+
+
+    {% if etapasList %}
+    <p><h2>ETAPAS</h2>
+      <ol>
+      {% for etapa in etapasList %}
+        {% get_all_subEtapas etapa as subEtapasList %}
+        <li>{{etapa}}
+          <ul>
+            {% for se in subEtapasList %}
+            <li>{{se.titulo}}</li>
+            {% endfor %}
+	  </ul>
+	</li>
+      {% endfor %}
+      </ol>
+    </p>
+    {% endif %}
+    {% if obj.fecha_inicio %}
+    <p><span>Fecha inicio :</span> {{obj.fecha_inicio}}</p>
+    {% endif %}
+    {% if obj.fecha_fin %}
+    <p><span>Fecha fin :</span> {{obj.fecha_fin}}</p>
+    {% endif %}
+    {% if obj.avance %}
+    <p><span>Avance :</span> {{obj.avance}} %</p>
+    {% endif %}
+    {% if obj.precio_minimo %}
+      <p><span>Precios desde :</span> {{obj.precio_minimo}}</p>
+    {% endif %}
+    {% if obj.fecha_inicio or obj.fecha_fin or obj.avance %}
+    <pdf:nextpage>
+    {% endif %}
+    {% if planosList %}
+    <p>
+    <h2>PLANOS</h2>
+      {% for p in planosList %}
+        <div class="foto">
+	  <img src="{{MEDIA_ROOT}}..{% thumbnail p.plano_dibujado 380x380 %}">
+	  <div class="planos_leyenda">
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/verde.png">
+	    &nbsp;&nbsp;Disponible
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/amarillo.png">
+	    &nbsp;&nbsp;Separado
+	    <img border="0" src="{{STATIC_ROOT}}proyectos/img/pdf/rojo.png">
+	    &nbsp;&nbsp;Vendido
+	  </div>
+	  <br/><span>{{p.titulo}}</span><br/>
+  	  <div class="foto_description">
+	    {{p.descripcion}}
+	  </div>
+	</div>
+	<pdf:nextpage>
+      {% endfor  %}
+    </p>
+    {% endif  %}
+    {% if showContact %}
+    <h2>TELÉFONOS DE CONTACTO</h2>
+    {% get_all_telephones %}
+    {% endif %}
+  </div>
+  <div id="pageNumberContent">
+    <pdf:pagenumber>
+  </div>
+  <div id="footerContent">
+    {% if contacto %}
+      Informes: {{contacto.direccion}}
+      <br/>  
+      {% get_3_telephones %}&nbsp;&nbsp;{{contacto.email}}
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_modify adminmedia %}
+{% load url from future %}
+
+{% block extrahead %}{{ block.super }}
+  {% url 'admin:jsi18n' as jsi18nurl %}
+  <script type="text/javascript" src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+  {{ media }}
+
+  <!-- begin custom extra headers -->
+
+    <!-- begin django admin date picker -->
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/core.js"></script>
+    <script type="text/javascript" src="{{STATIC_URL}}admin/js/admin/RelatedObjectLookups.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}admin/css/widgets.css"/>
+    <script type="text/javascript">
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";
+    </script>
+    {{form.media}}
+    <!-- end django admin date picker -->
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}common/js/jquery.jqmodal/jqModal.css"/>
+
+    <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/confirm.css"/>
+
+    <script>
+
+<!-- function confirm(msg,callback) { -->
+<!--   $('#confirm') -->
+<!--     .jqmShow() -->
+<!--     .find('p.jqmConfirmMsg') -->
+<!--       .html(msg) -->
+<!--     .end() -->
+<!--     .find(':submit:visible') -->
+<!--       .click(function(){ -->
+<!--         if(this.value == 'yes') -->
+<!--           (typeof callback == 'string') ? -->
+<!--             window.location.href = callback : -->
+<!--             callback(); -->
+<!--         $('#confirm').jqmHide(); -->
+<!--       }); -->
+<!-- } -->
+
+      $(document).ready(function() {
+        $('#confirm').jqm({overlay: 88, modal: true, trigger: false});
+
+        <!-- // trigger a confirm whenever links of class alert are pressed. -->
+        <!-- $('a.confirm').click(function() {  -->
+        <!--   confirm('About to visit: '+this.href+' !',this.href);  -->
+        <!--   return false; -->
+        <!-- }); -->
+
+        var created = '{{created}}';
+        if ( created == 'False'){
+          $('div.half').hide();
+        }
+        else {
+          var data = { etapa_id: {{etapa_id}} };        
+          var request = $.ajax({url: "{% url 'admin:ajax_list_subetapas' %}",
+                                type: "GET",
+                                data: data, dataType: "json"
+                               });
+          request.done(function(res, status) {
+            $('div#list_se').append(res['response']);
+          });
+        }
+
+        $('a.ajaxedit').live('click', function(event) {
+            event.preventDefault();
+            var request = $.ajax({url: "{% url 'admin:ajax_edit_subetapa' %}", 
+                          type: "GET",
+                          data: {id : $(this).attr('alt')}, dataType: "json"
+                          });
+            request.done(function(res, status) {
+              $('form#editSubEtapas input[id=id_titulo]').attr(
+              'value', res['titulo']);
+              $('form#editSubEtapas input#id_fecha_inicio').attr(
+              'value', res['fecha_inicio']);
+              $('form#editSubEtapas input#id_fecha_fin').attr(
+              'value', res['fecha_fin']);
+              $('form#editSubEtapas input#id_porcentaje').attr(
+              'value', res['porcentaje']);
+             $('form#editSubEtapas input#id_id').attr(
+              'value', res['id']); 
+           });
+        });
+
+	//acciones al hacer click en el boton si o no del popin de confirmacion
+	$('input.confirm').live('click', function(event) {
+	  event.preventDefault();
+	  if ($(this).attr('value') == 'Borrar'){
+	    id = $(this).attr('alt');
+            var request3 = $.ajax({
+                        url: "{% url 'admin:ajax_delete_subetapa' %}",
+                        type: "GET",
+                        data: {id: id}, dataType: "json"
+                        });
+            request3.done(function(res, status) {
+              $('tr#'+id).hide('slow');              
+              //dentro de donde no funciona el this :(
+              //$(this).parents('tr').hide();            
+            });
+	  }
+	  $('#confirm').jqmHide()
+	})
+
+	//acciones al hacer click en el delete de una sub-etapa
+        $('a.ajaxdelete').live('click', function(event) {
+          event.preventDefault();
+          var request2 = $.ajax({
+                        url: "{% url 'admin:ajax_delete_subetapa_view' %}",
+                        type: "GET",
+                        data: {id: $(this).attr('alt')}, dataType: "json"
+                        });
+          request2.done(function(res, status) {
+            if (res['cascade'] == '0') {
+              var request3 = $.ajax({
+                          url: "{% url 'admin:ajax_delete_subetapa' %}",
+                          type: "GET",
+                          data: {id: res['id']}, dataType: "json"
+                          });
+              request3.done(function(res, status) {
+                $('tr#'+res['id']).hide('slow');              
+                //dentro de donde no funciona el this :(
+                //$(this).parents('tr').hide();            
+              });
+            }
+            else{
+	      $('input.confirm').attr('alt', res['id']);
+	      $('div.jqmConfirmContent').html(res['related_objects']);
+              $('#confirm').jqmShow();
+            }
+          });
+        });
+
+        {% comment %}
+        $('a.ajaxdelete').live('click', function(event) {
+          event.preventDefault();
+          var request2 = $.ajax({url: "{% url 'admin:ajax_delete_subetapa'%}",
+                        type: "GET",
+                        data: {id: $(this).attr('alt')}, dataType: "json"
+                        });
+          request2.done(function(res, status) {
+            $('tr#'+res['id']).hide('slow');
+            //dentro de donde no funciona el this :(
+            //$(this).parents('tr').hide();
+          });
+        });
+        {% endcomment %}
+
+      })
+    </script>
+  <!-- end custom extra headers -->
+
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/forms.css" />{% endblock %}
+
+{% block coltype %}{% if ordered_objects %}colMS{% else %}colM{% endif %}{% endblock %}
+
+{% block bodyclass %}{{ opts.app_label }}-{{ opts.object_name.lower }} change-form{% endblock %}
+
+{% block breadcrumbs %}{% if not is_popup %}
+<div class="breadcrumbs">
+     <a href="../../../">{% trans "Home" %}</a> &rsaquo;
+     <a href="../../">Proyectos</a> &rsaquo;
+     <a href="../">Etapas</a> &rsaquo;
+     {% trans "Add" %} Etapa 
+
+</div>
+{% endif %}{% endblock %}
+
+{% block content %}<div id="content-main">
+{% block object-tools %}
+{% if change %}{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
+    {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
+    {% endblock %}
+  </ul>
+{% endif %}{% endif %}
+{% endblock %}
+
+  <form action="" method="post" >{% csrf_token %}
+    {% block form_top %} <h1>{% trans 'Add' %} Etapa</h1>{% endblock %}
+    <div>
+      {% if form.non_field_errors %}
+        {{form.non_field_errors}}
+      {% endif %}
+      <fieldset class="module aligned">
+	{% for field in form %}
+	  {% if not field.is_hidden %}
+	  {{field.errors}}
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{field.label_tag}}</td>
+	        <td>
+		  {{field}}
+		  {% if field.help_text %}
+  	          <br/>
+	          {{field.help_text}}
+		  {% endif %}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+	  {% else  %}
+	  {{field}}
+	  {% endif %}
+{% comment %}
+	{{field.errors}}
+	<div class="form-row {% if field.errors %}errors{% endif %}">
+	      <table class="Table-no-border">
+		<tr>
+	          <td>{{field.label_tag}}</td>
+	          <td>
+		    {{field}}
+		    {% if field.help_text %}
+  	              <br/>
+	            {{field.help_text}}
+		    {% endif %}
+		  </td>
+		</tr>
+	      </table>
+	</div>
+{% endcomment %}
+	{% endfor %}
+      </fieldset>
+      <div class="submit-row">
+	<input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	{% if not edit %}
+	<input type="submit" name="_addanother" value="{% trans 'Save and add another' %}">
+	<input type="submit" name="_continue" value="Guardar y Agregar SubEtapas">
+	{% endif %}
+	<!-- <input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}"> -->
+      </div>
+    </div>
+  </form>
+
+  <div class='half' >
+    <form id="editSubEtapas" action="" method="post" >{% csrf_token %}
+      <h1>{% trans 'Add' %} Sub-Etapa </h1>
+      <div>
+	{% if formSE.non_field_errors %}
+        {{formSE.non_field_errors}}
+	{% endif %}
+	<fieldset class="module aligned">
+	  {% for field in formSE %}
+	  {% if not field.is_hidden %}
+	  {{field.errors}}
+  	  <div class="form-row {% if field.errors %}errors{% endif %}">
+	    <table class="Table-no-border">
+	      <tr>
+	        <td>{{field.label_tag}}</td>
+	        <td>
+		  {{field}}
+		  {% if field.help_text %}
+  	          <br/>
+	          {{field.help_text}}
+		  {% endif %}
+		</td>
+	      </tr>
+	    </table>
+  	  </div>
+	  {% else  %}
+	  {{field}}
+	  {% endif %}
+	  {% endfor %}
+	</fieldset>
+	<div class="submit-row">
+          <!-- begin Confirm Dialog -->
+	  <div class="jqmConfirm" id="confirm">
+	    <div id="ex3b" class="jqmConfirmWindow">
+	      <div class="jqmConfirmTitle clearfix">
+		<h1>Confirmación</h1>
+		<a href="#" class="jqmClose"><em>Close</em></a>
+	      </div>
+	      <div class="jqmConfirmContent">
+		<p class="jqmConfirmMsg"></p>
+		<p>Continue?</p>
+	      </div>
+	      <input type="submit" value="Borrar" class="confirm" />
+	      <input type="submit" value="Cancelar" class="confirm" />
+	      <p></p>
+            </div>
+	  </div>
+	  <!-- end Confirm Dialog --> 
+
+	  <input class="default" type="submit" name="_save" value="{% trans 'Save' %}">
+	  <!-- <input type="submit" name="_addanother" value="{% trans 'Save and add another' %}"> -->
+	  <!-- <input type="submit" name="_continue" value="{% trans 'Save and continue editing'%}"> -->
+	</div>
+      </div>   
+    </form>
+  </div>
+  <div id='list_se' class="half">
+    <h1>Lista de Sub-Etapas </h1>    
+  </div>
+
+</div>
+{% endblock %}

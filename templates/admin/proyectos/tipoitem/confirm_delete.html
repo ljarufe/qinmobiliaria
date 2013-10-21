@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+     <a href="{% url admin:index %}">{% trans "Home" %}</a> &rsaquo;
+     <a href="{% url admin:app_list 'proyectos' %}">Proyectos</a> &rsaquo; 
+     <a href="{% url admin:proyectos_tipoitem_changelist %}">Tipos de item</a> &rsaquo; 
+     {% trans 'Delete' %}
+</div>
+{% endblock %}
+
+{% block content %}
+    <form action="{% url admin:admin_tipositem_delete %}" method="post">{% csrf_token %}
+    <p>Seguro que desea borrar {% if numRelOfer > 1 %}los items seleccionados{% else %}el item seleccionado{% endif %}?. Recuerde que también se eliminarán sus objetos relacionados.
+      {% for i,li in related_ofertas %}
+      <ul>
+	<li>Tipo de Item: {{ i }}
+	  <input type="hidden" name="{{forloop.counter}}" value="{{i.id}}" />
+	  {% if li %}
+	  <br/>Ofertas relacionadas:
+	  <ul>{{ li|unordered_list }}</ul>
+	  {% endif %}
+	</li>
+      </ul>
+      {% endfor %}
+    </p>
+    <div>
+    <input type="submit" value="{% trans "Yes, I'm sure" %}" />
+    </div>
+    </form>
+
+{% endblock %}

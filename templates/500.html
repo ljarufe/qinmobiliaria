@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+500
+{% endblock %}
+
+{% block body %}
+<div class="span-23 last box">
+<p>
+<br/><br/>
+<h1>{% blocktrans %}La petición no pudo ser cumplida por el servidor - Error Interno{% endblocktrans %} 500</h1>
+</p>
+</div>
+{% endblock %}

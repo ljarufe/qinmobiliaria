@@ -1,0 +1,213 @@
+{% load inmobiliaria noticias rubros i18n %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="description" content="Portal de Quimera Inmobiliaria" />
+        <meta name="keywords" content="inmobiliaria arequipa quimera departamentos terrenos venta alquiler" />
+
+	<link href="{{STATIC_URL}}common/img/favicon/favicon.ico" rel="SHORTCUT ICON">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/print.css" media="print"/>
+        <!--[if lt IE 8]><link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+	    <!--[if IE 7]><link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base_ie7_hacks.css" /><![endif]-->
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.css" />
+
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.tipsy.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.jqmodal/jqModal.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}portal/js/base.js"></script>
+        <script type="text/javascript">
+            var chat_show = false;
+            var active_user = false;
+            {% if user.is_authenticated %}
+                active_user = true;
+            {% endif %}
+        </script>
+
+        <title>Quimera Inmobiliaria | {% block title %}{% endblock %}</title>
+
+        <!-- Begin Google Analytics code -->
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-20948534-12']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+        </script>
+	    <!-- End Google Analytics code -->
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        <div class="container">
+            <!-- Cabecera -->
+            <div class="span-24 last logo_inmobiliaria_container" >
+                <!-- Logo -->
+                <a href="{% url inicio %}">
+                    <img src="{{ STATIC_URL }}common/img/Logo QUimera.png" class="logo" title="Quimera Inmobiliaria" alt="Quimera Inmobiliaria" />
+                </a>
+                <!-- Menu superior -->
+                <div class="prepend-8 span-16 last">
+                    <div class="span-16 last menu_header">
+                        <ul>
+                        <!-- Un usuario inició sesión -->
+                        {% if user.is_authenticated %}
+                            <li>
+                                <div class="logged_user"> {% blocktrans %}Bienvenido{% endblocktrans %}:
+                                    <div class="user_name">{{ user.get_full_name }}</div>
+                                </div>
+                                <div class="menu_user">
+                                    <ul>
+                                        <li>
+                                            <a href="{% url perfil_privado_usuario %}?tab=0">{% blocktrans %}Editar datos personales{% endblocktrans %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url perfil_privado_usuario %}?tab=1">{% blocktrans %}Editar intereses{% endblocktrans %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url perfil_privado_usuario %}?tab=2">{% blocktrans %}Editar afiliaciones{% endblocktrans %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url perfil_privado_usuario %}?tab=3">{% blocktrans %}Editar lotes separados{% endblocktrans %}</a>
+                                        </li>
+                                        {# TODO: Habilitar cuando se coloque la herramienta para la venta de terrenos #}
+{#                                        <li>#}
+{#                                            <a href="{% url venta_terreno %}">{% blocktrans %}Véndenos un terreno{% endblocktrans %}</a>#}
+{#                                        </li>#}
+                                        <li>
+                                            <a href="{% url logout %}" class="close_link">{% blocktrans %}Cerrar sesión{% endblocktrans %}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        <!-- Sin usuario -->
+                        {% else %}
+                            <li>
+                                <span class="link login_link">{% blocktrans %}Iniciar sesión{% endblocktrans %}</span>
+                            </li>
+                            <li>
+                                <a href="{% url registro %}">{% blocktrans %}Registro{% endblocktrans %}</a>
+                            </li>
+                            {# TODO: Habilitar cuando se coloque la parte de corredores #}
+{#                            <li>  #}
+{#                                <a href="{% url registro_corredor %}">{% blocktrans %}Registro de corredor{% endblocktrans %}</a>#}
+{#                            </li>#}
+                        {% endif %}
+                            <li>
+                                <a href="{% url zinnia_entry_archive_index %}">{% blocktrans %}Noticias{% endblocktrans %}</a>
+                            </li>
+                            <li>
+                                <a id="contacto_menu_base" href="{% url contacto %}">{% blocktrans %}Contacto{% endblocktrans %}</a>
+                            </li>
+                        </ul>
+
+                        <div class="buscador"></div>
+                    </div>
+                    <!-- Menu de rubros -->
+                    <div class="span-16 last menu_rubros">
+                        {% lista_rubros %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="span-24 last">
+                {% block body %}{% endblock %}
+            </div>
+
+            <!-- Footer -->
+            <div class="span-24 last">
+                <!-- Noticias -->
+                {% noticias %}
+
+                <!-- Menu -->
+                <div class="span-24 last menu_footer">
+                    <div class="span-19">
+                        <ul>
+                            <li>
+                                <a href="{% url nosotros %}">{% blocktrans %}Acerca de nosotros{% endblocktrans %}</a>
+                            </li>
+                            {# TODO: Habilitar cuando la herramienta esté lista #}
+{#                            <li>#}
+{#                                <a href="{% url venta_terreno %}">Vende tu terreno</a>#}
+{#                            </li>#}
+                            <li>
+                                <a href="{% url faqs %}">FAQ</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Links a redes sociales, microbloggins -->
+                    <div class="span-5 last">
+                        {% blocktrans %}Encuéntranos en{% endblocktrans %}:
+                        <div class="redes_iconos">
+                            <a href="{% fb_link %}" target="_blank">
+                                <img src="{{ STATIC_URL }}common/img/Facebook.png" alt="facebook" title="facebook"/>
+                            </a>
+                            <a href="{% tw_link %}" target="_blank">
+                                <img src="{{ STATIC_URL }}common/img/Twitter.png" alt="twitter" title="twitter"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Texto -->
+                <div class="span-24 last copyright">
+                    <div class="span-12">
+                        Copyright © 2012 <span>CCQ SAC</span>
+                    </div>
+                    <div class="span-12 last right">
+                        <p><span class="bold">Número:</span> (054) 221028, <span class="bold">Dirección:</span> Calle Jacinto Ibañez 315 - Cercado</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- FLOAT: Contacto mediante chat -->
+        <div class="chat_box">
+            <!-- Lanzador -->
+            <div class="chat_trigger">
+                <img src="{{ STATIC_URL }}common/img/boton_chat.png" alt="{% blocktrans %}Contactanos{% endblocktrans %}">
+            </div>
+            <!-- Formulario -->
+            <div id="chat_form">
+                <iframe width="300" height="340" src="{% url chat %}"></iframe>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <!-- Login form -->
+        <div id="login" class="jqmWindow span-10">
+            <div class="span-7 last">
+                <div class="span-4 titulo_iframe">
+                    Login
+                </div>
+                <div class="span-2 last right close_popin">
+                    cerrar <span>X</span>
+                </div>
+            </div>
+            <iframe width="275" height="200" src="{% url login %}" allowTransparency="true"></iframe>
+        </div>
+        {% endif %}
+
+        <!-- begin popin user account verified -->
+        <div id="uc_verified" class="jqmWindow span-11">
+            <div class="span-11 last">
+                <div class="span-8 titulo_iframe">
+                    {% blocktrans %}Su cuenta de usuario ha sido activada{% endblocktrans %}.
+                </div>
+                <div class="span-2 last right close_popin">
+                    {% blocktrans %}cerrar{% endblocktrans %} <span>X</span>
+                </div>
+            </div>
+        </div>
+	<!-- end popin user account verified -->
+
+    </body>
+</html>

@@ -1,0 +1,9 @@
+/* hacks ie7 */
+.va-container {left: 464px !important;}
+.next {left: 549px;}
+.slider-tab .nombre {width: 584px;filter: alpha(opacity=50);}
+.nav {filter: alpha(opacity = 60);}
+div.sliderImg {width: 584px;}
+div.sliderImg img {width: 584px;}
+
+

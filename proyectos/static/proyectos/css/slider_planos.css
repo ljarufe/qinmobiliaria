@@ -1,0 +1,29 @@
+div.column-1{
+    float: left;
+    width: 464px;
+}
+div.column-2{
+    float: right;
+    left: 466px;
+    width: 120px;
+    position: absolute;
+}
+/* hack any firefox */
+@-moz-document url-prefix(){
+    div.column-2 {
+	left: 464px !important ;
+    }
+}
+/* hack only for opera */
+@media not all and (-webkit-min-device-pixel-ratio:0) {
+    head~body div.column-2 {left:464px !important;}
+}
+
+/* hack ie8 ie9 */
+div.column-2{
+    left: 465px\0/;
+}
+
+iframe{
+    border: 0;
+}

@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<div class="pagination" id="pag">
+    <div class="step-links">
+        {% if paginated_list.has_previous %}
+            <a href="?page={{ paginated_list.previous_page_number }}{{ label }}">
+                <div class="prev flecha">
+                    &#60;
+                </div>
+            </a>
+        {% else %}
+            <a href="?page={{ paginated_list.paginator.num_pages }}{{ label }}">
+                <div class="prev flecha">
+                    &#60;
+                </div>
+            </a>
+        {% endif %}
+
+        <div class="current">
+            {% blocktrans %}Página{% endblocktrans %} {{ paginated_list.number }} {% blocktrans %}de{% endblocktrans %} {{ paginated_list.paginator.num_pages }}
+        </div>
+
+
+        {% if paginated_list.has_next %}
+            <a href="?page={{ paginated_list.next_page_number }}{{ label }}">
+                <div class="next flecha">
+                    &#62;
+                </div>
+            </a>
+        {% else %}
+            <a href="?page=1{{ label }}">
+                <div class="next flecha">
+                    &#62;
+                </div>
+            </a>
+        {% endif %}
+    </div>
+</div>

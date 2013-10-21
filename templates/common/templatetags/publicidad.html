@@ -1,0 +1,52 @@
+<script type="text/javascript">
+    var total = {{ total }};
+    var url = "{% url json_get_aviso %}";
+    var index = Math.floor(Math.random()*11);
+    var duracion = false;
+    var timer;
+
+    function SetAnuncio() {
+        var request = $.ajax({
+             url: url,
+             type: "GET",
+             data: {index: index},
+             dataType: "html"
+         });
+        request.done(function(msg) {
+            var data = jQuery.parseJSON(msg);
+            $("#aviso_html").fadeOut(500, function() {
+                $("#aviso_a").attr("href", data.url);
+                $("#aviso_html").html(data.aviso);
+                $("#aviso_html").fadeIn(500);
+            });
+            index++;
+            duracion = data.duracion*1000;
+            setTimeout("SetAnuncio()", duracion);
+        });
+    }
+
+    $(document).ready(function() {
+        var request = $.ajax({
+            url: url,
+            type: "GET",
+            data: {index: index},
+            dataType: "html"
+        });
+        request.done(function(msg) {
+            var data = jQuery.parseJSON(msg);
+            if(data.status) {
+                $("#aviso_a").attr("href", data.url);
+                $("#aviso_html").html(data.aviso);
+                duracion = data.duracion*1000;
+                index++;
+                setTimeout("SetAnuncio()", duracion);
+            }
+        });
+    });
+</script>
+
+<div id="aviso_container">
+    <a href="" id="aviso_a">
+        <div id="aviso_html"></div>
+    </a>
+</div>

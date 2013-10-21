@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Proyectos Desarrollados - {{ desarrollado.nombre }}{% endblocktrans %}{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css" xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="{{ STATIC_URL }}portal/css/nosotros.css">
+{% endblock %}
+
+{% block body %}
+    <div class="fake-tabs ui-tabs ui-widget ui-widget-content ui-corner-all">
+        <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url nosotros %}?tab=0">{% blocktrans %}Introducción{% endblocktrans %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url nosotros %}?tab=1">{% blocktrans %}Historia{% endblocktrans %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url nosotros %}?tab=2">{% blocktrans %}Misión{% endblocktrans %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url nosotros %}?tab=3">{% blocktrans %}Visión{% endblocktrans %}</a>
+            </li>
+            <li class="ui-state-default ui-corner-top">
+                <a href="{% url nosotros %}?tab=4">{% blocktrans %}Proyectos desarrollados{% endblocktrans %}</a>
+            </li>
+        </ul>
+        <div class="desarrollado">
+            <h2>
+                Proyectos desarrollados
+            </h2>
+            <h2>{{ desarrollado.nombre }}</h2>
+            <div>{{ desarrollado.descripcion|safe }}</div>
+            <img src="{{ desarrollado.principal.thumbnail }}" alt="{{ desarrollado.nombre }}">
+        </div>
+        <div class="otros-desarrollados">
+            <h2>
+                Otros proyectos desarrollados
+            </h2>
+            {% for desarrollado in desarrollados %}
+                <div class="desarrollado-item">
+                    <a href="{{ desarrollado.get_absolute_url }}">
+                        <img src="{{ desarrollado.logo.thumbnail }}" alt="{{ desarrollado.nombre }}">
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

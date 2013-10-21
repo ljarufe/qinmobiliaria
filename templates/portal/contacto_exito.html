@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Contacto con Quimera Inmobiliaria{% endblocktrans %}{% endblock %}
+
+{% block body %}
+    <div class="span-23 last box">
+        <h1>{% blocktrans %}Contacto realizado{% endblocktrans %}</h1>
+        <p>{% blocktrans %}Sus datos han sido enviados a Quimera Inmobiliria, se le enviará una respuesta.{% endblocktrans %}</p>
+        <a href="{% url inicio %}" class="boton">{% blocktrans %}Regresar a la página de inicio{% endblocktrans %}</a>
+        <span class="login_link boton">{% blocktrans %}Iniciar sesión{% endblocktrans %}</span>
+    </div>
+{% endblock %}

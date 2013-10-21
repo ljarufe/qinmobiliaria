@@ -1,0 +1,61 @@
+{% load form_display i18n %}
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}common/css/blueprint/screen.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}portal/css/contacto.css" />
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var num_telefono = $("#id_form-INITIAL_FORMS").val() - 1;
+
+            $('.add_telefono').click(function() {
+                $('#li_telefono_' + num_telefono).after('<li class="telefono_li" id="li_telefono_' + (num_telefono + 1) + '"></li>');
+                var reg = new RegExp("-" + String($("#id_form-INITIAL_FORMS").val()), 'g');
+                num_telefono++;
+                var form = "<div class='base_telefono'>" + $('.base_telefono').clone().html().replace(reg, '-' + num_telefono) + "</div>";
+                $('#li_telefono_' + num_telefono).append(form);
+                $('#id_form-0-numero').val();
+                $('#id_form-TOTAL_FORMS').val(String(num_telefono + 1));
+            });
+
+            $("#change_pass_link").click(function() {
+                $(".change_pass").show(400);
+            });
+        });
+    </script>
+</head>
+    <body class="bg_white">
+        <div class="span-10 form-registro pad_left_20">
+            <form action="" method="post">
+                <div class="span-10 last">
+                    <table>
+                        {% display_as_table form %}
+                    </table>
+                    <ul>
+                        {% for form_telefono in formset %}
+                            <li class="telefono_li" id="li_telefono_{{ forloop.counter0 }}">
+                                <div class="base_telefono">{{ form_telefono }}</div>
+                            </li>
+                        {% endfor %}
+                        {{ formset.management_form }}
+                        <img class="add_telefono" src="{{ STATIC_URL }}common/img/Mas-telefono.png" alt="+" title="{% blocktrans %}Nuevo teléfono{% endblocktrans %}"/>
+                    </ul>
+                </div>
+                <div class="span-10 last prepend-top">
+                    {% blocktrans %}Los campos marcados con * son obligatorios{% endblocktrans %}
+                </div>
+                <div class="span-10 last right">
+                    <span class="boton" id="change_pass_link">{% blocktrans %}Cambiar contraseña{% endblocktrans %}</span>
+                    <input type="submit" value="{% blocktrans %}Guardar datos{% endblocktrans %}" />
+                </div>
+            </form>
+
+            <div class="span-10 last prepend-top change_pass">
+                <iframe width="100%" height="300px" frameborder="0" src="{% url usuario_cambiar_password %}"></iframe>
+            </div>
+        </div>
+    </body>
+</html>

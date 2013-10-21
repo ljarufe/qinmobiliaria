@@ -1,0 +1,118 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {      
+    var form_count = {{formset.total_form_count}};
+    var nroFonos = {{numFonos}};
+    $('button#AddOneFonoForm').click(function(event){
+        event.preventDefault();
+        if (form_count ==  10 || nroFonos == 9){
+          $(this).parent().html('Sólo se pueden tener 10 teléfonos de contacto');
+        }
+        else {
+          var newForm = '{{formset.empty_form|escapejs}}'.replace(/__prefix__/g,form_count);
+          form_count++;
+          nroFonos++;
+          $('table#newForms').prepend(newForm);
+          $('#id_form-TOTAL_FORMS').val(form_count);
+        }
+    });
+
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  {% if add_success %}
+    <ul class="messagelist">
+      <li class="info">La información de contacto fue ingresada con éxito</li>
+    </ul>
+  {% endif %}
+  <ul id='delCaracteristica' class="messagelist no-display">
+    <li class="info">Teléfono ingresado</li>
+  </ul>
+
+  {% block form_top %} <h1>{% trans 'Add' %} Teléfonos de Contacto</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Telefono Form -->
+      {% if addFonoSuccess %}
+      <ul class="messagelist">
+	<li class="info">La información fue ingresada con éxito</li>
+      </ul>
+      {% endif %}
+	<div id='addFonoForm'>
+	  {% if numFonos < 10 %}
+	  <form action="" method="post">{% csrf_token %}
+	    <div class='fonoFormset_list'>
+  	      {{formset.management_form}}
+	      <table id='newForms'>
+	      </table>
+ 	      {% for fonoForm in formset %}
+	        {{fonoForm.non_field_errors}}
+  	        {% for field in fonoForm %}
+                  <div class='form-row'>
+  	            {{field.errors}}
+	            {{field.label_tag}}
+	            {{field}}
+  	          </div>
+		{% endfor %}
+	      {% endfor %}
+	    </div>
+	    <div class='form-row'>
+	      <button type='submit' id='AddOneFonoForm'>
+		Añadir más teléfonos <img width="10" height="10" alt="Añadir otro" src="{{STATIC_URL}}/admin/img/admin/icon_addlink.gif">
+	      </button>
+	    </div>
+	    <div class="submit-row">
+	      <input class="default" type="submit" name="save" value="{% trans 'Add' %}">
+	    </div>
+	  </form>
+	  {% else %}
+	    Sólo se pueden tener 10 números por contacto.
+	  {% endif %}
+	</div>
+      <!-- End Add Telefono Form -->
+    </div>
+    <div class='proyecto-form-col2'>
+      <!-- Begin edit delete tool -->
+      {% if delFono %}
+      <ul class="messagelist">
+	<li class="info">Teléfono Eliminado</li>
+      </ul>
+      {% endif %}
+      <h1>Lista de Teléfonos</h1>
+      <div class="telefonos_list">
+	<fieldset class='module'>
+	  <table class='telefonos_list'>
+	    {% for c in fonoList %}
+	    <tr id='{{c.id}}'>
+	      <td class='first'>{{c}}</td>
+	      <td class='second'>{{c.tipo_telefono}}</td>
+	      <td>
+		<form action='' method='post'>{% csrf_token %}
+		  <input type='hidden' value='{{c.id}}' name='id'>
+		  <input type='submit' value='{% trans "Delete" %}' name='delete'>
+		</form>
+	      </td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</fieldset>
+      </div>
+      <!-- End edit delete tool -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

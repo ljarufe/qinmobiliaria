@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% load thumbnail humanize truncate i18n %}
+
+{% block title %}{% blocktrans %}Proyecto{% endblocktrans %}: {{ proyecto.nombre }}{% endblock %}
+
+{% block head %}
+    <meta property="og:title" content="{{ proyecto.nombre }}" />
+    <meta property="og:description" content="{{ proyecto.resumen }}" />
+    <meta property="og:image" content="{{ MEDIA_URL }}{{ proyecto.foto_principal }}" />
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/perfil.css">
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.progressbar.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.sound.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.ubicacion.js"> </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.over-slider.js"> </script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}proyectos/js/perfil_proyecto.js"></script>
+
+    <script type="text/javascript">
+        var latitud = "{{ proyecto.latitud }}";
+        var longitud = "{{ proyecto.longitud }}";
+        var references = new Array();
+        var elem;
+        var web_proyecto_url = "{{ proyecto.web_url }}";
+        {% for referencia in referencias %}
+            elem = {
+                nombre: "{{ referencia.nombre }}",
+                descripcion: "{{ referencia.descripcion }}",
+                icono: "{{referencia.icono.extra_thumbnails.gmap.absolute_url}}",
+                latlng: new google.maps.LatLng({{ referencia.getLatLng }})
+            };
+            references.push(elem);
+        {% endfor %}
+        var url = "{% url json_afiliar %}";
+        var proyecto = "{{ proyecto.id }}";
+    </script>
+{% endblock %}
+
+{% block body %}
+    <!-- Cabecera de proyecto -->
+    <div class="span-23 last box">
+        <div class="span-23 last">
+            <!-- Izquierda-->
+            <div class="span-15">
+                <h1>{{ proyecto }}</h1>
+            </div>
+
+            <!-- Derecha -->
+            <div class="span-8 last right">
+                <form id="contacto_form" action="{% url contacto %}" method="post">
+                    <input type="hidden" name="contacto_proyecto_id" value="{{ proyecto.id }}" />
+                </form>
+                <span class="link contacto_link">Contacto</span>
+                <!-- AddThis Button BEGIN -->
+                <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4da5c6bd7f9dcd59"><img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+                <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+                <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4da5c6bd7f9dcd59"></script>
+                <!-- AddThis Button END -->
+            </div>
+        </div>
+
+        <!-- Contenedor izquierdo -->
+        <div class="span-15">
+            <div id="tabs">
+                <ul>
+                    <li class="tabs_1">
+                        <a href="#tabs-1">{% blocktrans %}Fotos{% endblocktrans %}</a>
+                    </li>
+                    <li class="tabs_2">
+                        <a href="#tabs-2">{% blocktrans %}Videos{% endblocktrans %}</a>
+                    </li>
+                    <li class="tabs_3">
+                        <a href="#tabs-3">{% blocktrans %}Planos{% endblocktrans %}</a>
+                    </li>
+                    <li class="tabs_4">
+                        <a href="#tabs-4" id="tab_ubicacion">{% blocktrans %}Ubicación{% endblocktrans %}</a>
+                    </li>
+                </ul>
+                <div id="tabs-1">
+                    <iframe frameborder="0px" marginheight="0px" marginwidth="0px" src="{% url slider_fotos proyecto.id %}" height="365px" width="586px"></iframe>
+                </div>
+                <div id="tabs-2">
+                    <iframe frameborder="0px" marginheight="0px" marginwidth="0px" src="{% url slider_videos proyecto.id %}" height="365px" width="586px"></iframe>
+                </div>
+                <div id="tabs-3">
+                    <iframe frameborder="0px" marginheight="0px" marginwidth="0px" src="{% url proyectos_planos_slider proyecto.id %}" height="365px" width="586px"></iframe>
+                </div>
+                <div id="tabs-4">
+                    <div id="mapa_ubicacion"></div>
+                </div>
+            </div>
+
+            <!-- Detalles del proyecto: Extendido -->
+            <div class="detalles">
+                <h2 class="titulo detalles">{% blocktrans %}Detalles{% endblocktrans %}</h2>
+                {% if proyecto.introduccion %}
+                <h3 class="cute-red">{% blocktrans %}Introducción{% endblocktrans %}</h3>
+                <p>
+                    {{ proyecto.introduccion }}
+                </p>
+                <div class="hr"><hr/></div>
+                {% endif %}
+                {% if proyecto.descripcion %}
+                <h3>{% blocktrans %}Descripción{% endblocktrans %}</h3>
+                <p>
+                    {{ proyecto.descripcion }}
+                </p>
+                <div class="hr"><hr/></div>
+                {% endif %}
+                {% if caracteristicas %}
+                <h3>{% blocktrans %}Características{% endblocktrans %}</h3>
+                    <ul>
+                        {% for caracteristica in caracteristicas reversed %}
+                        <li>
+                            <p>
+                                <label>{{ caracteristica.nombre }}</label>,
+                                {{ caracteristica.descripcion }}
+                            </p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                <div class="hr"><hr/></div>
+                {% endif %}
+                {% if beneficios %}
+                <h3>{% blocktrans %}Beneficios{% endblocktrans %}</h3>
+                    <ul>
+                    {% for beneficio in beneficios reversed %}
+                        <li>
+                            <p>
+                                {{ beneficio.descripcion|safe }}
+                            </p>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                <div class="hr"><hr/></div>
+                {% endif %}
+
+                <!-- begin lotes/items -->
+                {% if items_height > 0 %}
+                    <iframe src="{% url items_proyecto proyecto.id %}" width="590px" height="{{ items_height|add:"155" }}"></iframe>
+                {% endif %}
+                <!-- end lotes/items -->
+            </div>
+        </div>
+
+        <!-- Contenedor derecho -->
+        <div class="span-8 last">
+            <!-- Detalles del proyecto: Resumen -->
+            <div class="span-8 last resumen">
+                <div>
+                    <div class="span-3">
+                        <h2>{% blocktrans %}Resumen{% endblocktrans %}</h2>
+                        {% if proyecto.web_url %}
+                        <img src="{{ proyecto.logo.extra_thumbnails.small }}" />
+                        <p id="web_proyecto_link" class="link">{% blocktrans %}Presentación{% endblocktrans %}</p>
+                        {% endif %}
+                    </div>
+                    <div class="span-3 last right">
+                        {% if proyecto.pdf %}
+                        <a href="{{ proyecto.pdf }}" class="pdf" target="_blank">
+                            {% blocktrans %}Descargar{% endblocktrans %}
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="span-7 last">
+                        <p title="{{ proyecto.resumen }}">{{ proyecto.resumen|trunc_char:"280" }}</p>
+                        <ul>
+                            {% if proyecto.direccion %}
+                            <li>
+                                <span class="bold">{% blocktrans %}Dirección{% endblocktrans %}:</span> {{ proyecto.direccion }}
+                            </li>
+                            {% endif %}
+                            {% if proyecto.precio_minimo %}
+                            <li>
+                                <span class="bold">{% blocktrans %}Precio{% endblocktrans %}:</span> ${{ proyecto.precio_minimo|floatformat:"0"|intcomma }} - ${{ proyecto.precio_maximo|floatformat:"0"|intcomma }}
+                            </li>
+                            {% endif %}
+                            {% if proyecto.area %}
+                            <li>
+                                <span class="bold">{% blocktrans %}Área total{% endblocktrans %}:</span> {{ proyecto.area }}
+                            </li>
+                            {% endif %}
+                            {% if proyecto.area_construida %}
+                            <li>
+                                <span class="bold">{% blocktrans %}Área construída{% endblocktrans %}:</span> {{ proyecto.area_construida }}
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="span-7 last right">
+                    {% if user.is_authenticated %}
+                        {% if cliente in proyecto.clientes.all %}
+                        <span>{% blocktrans %}Ya está afiliado{% endblocktrans %}</span>
+                        {% else %}
+                        <span class="boton link_afiliar">{% blocktrans %}Afiliarse{% endblocktrans %}</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="link login_link">{% blocktrans %}Inicie sesión para afiliarte al proyecto{% endblocktrans %}</span>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oferta -->
+            {% if oferta %}
+            <div class="span-8 last oferta-container">
+                <img class="oferta-bubble" src="{{STATIC_URL}}proyectos/img/perfil/oferta.png">
+                <h2 class="titulo oferta">{% blocktrans %}Lote en Oferta{% endblocktrans %}</h2>
+                <div class="span-3">
+                    {% thumbnail oferta.item.tipo_item.foto 100x100 crop upscale as thumb %}
+                    <img src="{{thumb}}" >
+                </div>
+                <div class="span-5 last oferta-description">
+                    <div class='tipo_item'>
+                        <label>{% blocktrans %}Tipo{% endblocktrans %}:</label> {{oferta.item.tipo_item.nombre.nombre}}<br/>
+                    </div>
+                    <label>{% blocktrans %}Area{% endblocktrans %}:</label> {{oferta.item.tipo_item.area|intcomma}}<br/>
+		    {% if oferta.item.tipo_item.precio %}
+                    <span class="tachado">
+                    <label>{% blocktrans %}Antes{% endblocktrans %}:</label> ${{oferta.item.tipo_item.precio|floatformat:"0"|intcomma}}
+                    </span><br/>
+                    <span class="newPrice">
+                    <label>{% blocktrans %}Ahora{% endblocktrans %}:</label> ${{oferta.new_price|floatformat:"0"|intcomma}}
+                    </span>
+		    {% endif %}
+                </div>
+		{{oferta.descripcion|safe}}
+                <div class="clear"></div>
+                <div class="span-3 oferta-link">
+                    <a href="{% url proyectos_solicitud random_item_id %}">
+                        {% blocktrans %}Ver en Planos{% endblocktrans %}
+                    </a>
+                </div>
+                <div class="span-5 last oferta-button">
+                    <form method="GET" action="{% url proyectos_solicitud random_item_id %}">
+                        <input type="submit" value="{% blocktrans %}Separar{% endblocktrans %}">
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Avance de obra: Resumen-->
+            <div class="span-8 last avances">
+                <a href="{% url etapas_proyecto proyecto.slug %}">
+                    <h2 class="titulo avance">{% blocktrans %}Avance de obra{% endblocktrans %}</h2>
+                </a>
+                <!-- Progreso general -->
+                <div class="span-8 last append-bottom">
+                    {% if proyecto.avance %}
+                    <div class="span-8 last append-bottom">
+                        <a href="{% url etapas_proyecto proyecto.slug %}">
+                            <h3>{% blocktrans %}Progreso general{% endblocktrans %}</h3>
+                        </a>
+                    </div>
+                    <div class="span-6">
+                        <div id="progressbar" value="{{ proyecto.avance }}"></div>
+                    </div>
+                    <div class="span-2 last right">
+                        <span>{{ proyecto.avance }} %</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Etapa actual -->
+                {% if etapa_actual %}
+                <div class="span-8 last">
+                    <div class="span.8 last">
+                        <h3><a href="{% url etapas_proyecto proyecto.slug %}">{% blocktrans %}Etapa actual{% endblocktrans %}: {{ etapa_actual }}</a></h3>
+                        {% if etapa_actual.fecha_inicio %}
+                            <p>{% blocktrans %}Del{% endblocktrans %} {{ etapa_actual.fecha_inicio }} {% blocktrans %}al{% endblocktrans %} {{ etapa_actual.fecha_fin }}</p>
+                        {% endif %}
+                    </div>
+                    {% if subetapa_actual %}
+                    <div class="span-8 last">
+                        <h4><a href="{% url etapas_proyecto proyecto.slug %}">{% blocktrans %}Subetapa actual{% endblocktrans %}: {{ subetapa_actual }}</a></h4>
+                        {% if subetapa_actual.fecha_inicio %}
+                            <p>Del {{ subetapa_actual.fecha_inicio }} al {{ subetapa_actual.fecha_fin }}</p>
+                        {% endif %}
+                        <!-- Slider de avances -->
+			{% if avance_actual %}
+                        <div class="slider-tab">
+                            {% for foto in avance_actual.fotos.all %}
+                            <div>
+                                <div title="{{ foto.descripcion }}">
+                                    <img src="{{ foto.imagen.extra_thumbnails.preview }}" title="{{ foto.nombre }}" />
+                                </div>
+                                <div class="nombre">
+                                    <h3>{{ foto.nombre }}</h3>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% for video in avance_actual.videos.all %}
+                            <div>
+                                <div title="{{ video.descripcion }}">
+                                    {{ video.get_html_preview|safe }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+			{% endif %}
+                        <div class="span-8 last"></div>
+                    </div>
+                    <div class="span-8 last right">
+                        <a href="{% url etapas_proyecto proyecto.slug %}">{% blocktrans %}Ver todas las etapas{% endblocktrans %}</a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Proyectos de interés -->
+            {% if relacionados %}
+            <div class="span-8 last">
+                <h2 class="titulo oferta">{% blocktrans %}Proyectos de interés{% endblocktrans %}</h2>
+                {% for proyecto_rel in relacionados %}
+                <div class="span-8 last interes">
+                    <div class="span-3">
+                        <img src="{{ proyecto_rel.foto_principal.extra_thumbnails.preview }}" />
+                    </div>
+                    <div class="span-4 last">
+                        <h3>
+                            <a href="{{ proyecto_rel.get_absolute_url }}">
+                                {{ proyecto_rel.nombre }}
+                            </a>
+                        </h3>
+                        <a href="{{ proyecto_rel.rubro.get_absolute_url }}">{{ proyecto_rel.rubro }}</a>
+                        {% if proyecto_rel.direccion %}<p>{{ proyecto_rel.direccion }}</p>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Página de presentación -->
+    <div id="web_proyecto" class="jqmWindow">
+        <div class="close_popin close_web_proyecto">
+            {% blocktrans %}cerrar{% endblocktrans %} <span>X</span>
+        </div>
+        <iframe width="1200" height="700" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>
+    </div>
+{% endblock %}

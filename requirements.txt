@@ -1,0 +1,10 @@
+BeautifulSoup==3.2.0
+PIL==1.1.7
+distribute==0.6.10
+django-mptt==0.5.2
+django-tagging==0.3.1
+django-tinymce==1.5.1b2
+psycopg2==2.4.3
+wsgiref==0.1.2
+orbited==0.7.10
+stomp.py==3.1.0-beta-5

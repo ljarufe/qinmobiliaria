@@ -1,0 +1,37 @@
+<script type="text/javascript">
+    $(document).ready(function() {
+        var url = "{% url json_proyectos_slider %}";
+        var index = Math.floor(Math.random()*11);
+
+        setInterval(function() {
+            var request = $.ajax({
+                url: url,
+                type: "GET",
+                data: {index: index},
+                dataType: "html"
+            });
+
+            request.done(function(proyecto) {
+                var data = jQuery.parseJSON(proyecto);
+                $("#proy_slider_img").fadeOut(800, function(){
+                    $("#proy_slider_img").attr("src", data.imagen);
+                    $("#proy_slider_a").attr("href", data.url);
+                    $("#proy_slider_a").html(data.nombre);
+                    $("#proy_slider_rubro").html(data.rubro);
+                });
+                $("#proy_slider_img").fadeIn(800);
+                index++;
+            });
+        }, 8000);
+    });
+</script>
+
+<div id="proy_slider_container">
+    <img width="270px" id="proy_slider_img" src="{{ proyecto.foto_principal.extra_thumbnails.small_slider }}"/>
+    <div class="slider-tab">
+        <h3>
+            <a id="proy_slider_a" href="{{ proyecto.get_absolute_url }}">{{ proyecto.nombre }}</a>
+        </h3>
+        <h4 id="proy_slider_rubro">{{ proyecto.rubro }}</h4>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+{% extends "admin/basic.html" %}
+{% load i18n thumbnail %}
+{% block extrahead %}
+<script type="text/javascript" src="{{STATIC_URL}}common/js/jquery-1.7.1.min.js"></script>
+<link href="{{STATIC_URL}}proyectos/css/admin_beneficios.css" type="text/css" rel="stylesheet">
+<script type="text/javascript">
+  $(document).ready(function() {      
+
+    $('a.changelink').click(function(event){
+      event.preventDefault();
+      var request = $.ajax({
+               url: "{% url admin:admin_proyecto_ajax_edit_beneficio %}",
+               type: "POST",
+               data: {id:$(this).attr('alt')}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('input#id_id').attr('value',res['id']);
+        $('textarea#id_descripcion').attr('value',res['descripcion']);
+      });      
+    });
+
+    $('a.deletelink').click(function(event){
+      event.preventDefault();
+      var Id = $(this).attr('alt')
+      var request = $.ajax({
+               url: "{% url admin:admin_proyecto_ajax_delete_beneficio %}",
+               type: "POST",
+               data: {id:Id}, dataType: "json"
+                          });
+      request.done(function(res, status) {
+        $('tr#'+Id).hide('slow');
+        $('ul#delCaracteristica').show();
+      });
+    });
+
+  });
+</script>
+{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}proyectos/css/admin.css"/>
+{% endblock %}
+
+{% block bodyclass %}change-form{% endblock %}
+
+{% block div_content_id %}{% endblock %}
+{% block content %}
+<div id="content-main">
+  {% if add_success %}
+    <ul class="messagelist">
+      <li class="info">El beneficio fue agregado</li>
+    </ul>
+  {% endif %}
+  <ul id='delCaracteristica' class="messagelist no-display">
+    <li class="info">El beneficio fue eliminado</li>
+  </ul>
+
+  {% block form_top %} <h1>{% trans 'Add' %} Beneficio</h1>{% endblock %}
+  <fieldset class='module aligned'>
+    <div class='proyecto-form-col1'>
+      <!-- Begin Add Beneficio Form -->
+      <form id='caracteristicaForm'  action="" method="post">{% csrf_token %}
+	<div class='form-row prependTop-40'>
+	  {{form.non_field_errors}}
+	  {{form.id}}
+	  {{form.proyecto}}
+	  {{form.descripcion.errors}}
+	  {{form.descripcion.label_tag}}
+	  {{form.descripcion}}
+	</div>
+	<div class="submit-row">
+          <input class="default" type="submit" name="save" value="{% trans 'Save' %}">
+	</div>
+      </form>
+      <!-- End Add Beneficio Form -->
+    </div>
+    <div class='proyecto-form-col2'>
+      <!-- Begin edit delete tool -->
+      <h1>Lista de beneficios</h1>
+      <div class="caracteristicas_list">
+	<fieldset class='module'>
+	  <table class='caracteristicas_list'>
+	    {% for c in caractList %}
+	    <tr id='{{c.id}}'>
+	      <td class='first'>{{c}}</td>
+	      <td><a class='changelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Edit' %}</a></td>
+	      <td><a class='deletelink ajaxedit' href='#' alt='{{c.id}}'>{% trans 'Delete' %}</a></td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</fieldset>
+      </div>
+      <!-- End edit delete tool -->
+    </div>
+  </fieldset>
+</div>
+{% endblock %}

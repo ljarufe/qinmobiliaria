@@ -1,0 +1,40 @@
+{% extends "zinnia/iframes/base_slider.html" %}
+
+{% block head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.over-slider.js"> </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(".slider-tab").OverSlider({
+                controls_container: $(".controls_container"),
+                height: 295
+            });
+        })
+    </script>
+{% endblock %}
+{% block body %}
+<div class="iehack">
+  {% if fotos %}
+  <div class="controls_container"></div>
+  {% endif %}
+</div>
+<div class="slider-tab">
+    <div>
+        <div title="{{ nombre_noticia }}">
+            <img src="{{ foto_principal.extra_thumbnails.big }}" />
+        </div>
+        <div class="nombre">
+            <h3>{{ nombre_noticia }}</h3>
+        </div>
+    </div>
+    {% for foto in fotos %}
+        <div>
+            <div title="{{ foto.descripcion }}">
+                <img src="{{ foto.imagen.extra_thumbnails.news }}" />
+            </div>
+            <div class="nombre">
+                <h3>{{ foto.nombre }}</h3>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

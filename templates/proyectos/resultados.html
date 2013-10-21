@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% load resultados blocktags humanize i18n %}
+
+{% block title %}{% blocktrans %}Resultados de la búsqueda{% endblocktrans %}{% endblock %}
+
+{% block head %}
+    <meta property="og:title" content="{{ proyecto.nombre }}" />
+    <meta property="og:description" content="{{ proyecto.resumen }}" />
+    <meta property="og:image" content="{{ proyecto.foto_principal }}" />
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.ui/themes/base/jquery.ui.all.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/js/jquery.searchbox/jquery.searchbox.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/resultados.css">
+    <!--[if IE 7]><link rel="stylesheet" href="{{ STATIC_URL }}proyectos/css/resultados_ie7_hacks.css"><![endif]-->
+
+
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.searchbox/jquery.searchbox.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.mouse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/jquery.ui/jquery.ui.slider.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.ubicacion.js"> </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/js/googlemaps.polygon_edit/area_edit.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}proyectos/js/resultados.js"></script>
+
+    <script type="text/javascript">
+        var url = "{% url json_afiliar %}";
+        var usuario = "{{ user.id }}";
+        // Rango de precios
+        var min_renta, max_renta, min_venta, max_venta;
+        {% if rango_renta.precio_minimo__min %}
+            min_renta = parseFloat({{ rango_renta.precio_minimo__min }});
+        {% else %}
+            min_renta = 0;
+        {% endif %}
+        {% if rango_renta.precio_maximo__max %}
+            max_renta = parseFloat({{ rango_renta.precio_maximo__max }});
+        {% else %}
+            max_renta = 100000;
+        {% endif %}
+        {% if rango_venta.precio_minimo__min %}
+            min_venta = parseFloat({{ rango_venta.precio_minimo__min }});
+        {% else %}
+            min_venta= 0;
+        {% endif %}
+        {% if rango_venta.precio_maximo__max %}
+            max_venta = parseFloat({{ rango_venta.precio_maximo__max }});
+        {% else %}
+            max_venta = 100000;
+        {% endif %}
+        var value_min, value_max;
+        {% if form.cleaned_data.min_precio %}
+            value_min = {{ form.cleaned_data.min_precio }};
+        {% else %}
+            value_min = min_renta;
+        {% endif %}
+        {% if form.cleaned_data.max_precio %}
+            value_max = {{ form.cleaned_data.max_precio }};
+        {% else %}
+            value_max = max_venta;
+        {% endif %}
+        // Localización
+        var has_location = null;
+        {% if form.cleaned_data.location %}
+            has_location = true;
+            var hi_lat = {{ form.cleaned_data.hi_lat }};
+            var hi_lon = {{ form.cleaned_data.hi_lon }};
+            var lo_lat = {{ form.cleaned_data.lo_lat }};
+            var lo_lon = {{ form.cleaned_data.lo_lon }};
+{#            var location = "{{ form.cleaned_data.location }}";#}
+        {% endif %}
+        // Mapa de resultados
+        var results = new Array();
+        var bounds = new google.maps.LatLngBounds();
+        var elem;
+        {% for proyecto in resultados_sp %}
+            elem = {
+                nombre: "{{ proyecto.nombre }}",
+                bigIcon: "{{ proyecto.foto_principal.extra_thumbnails.preview }}",
+                rubro: "{{ proyecto.rubro }}",
+                direccion: "{{ proyecto.direccion }}",
+                link: "{{ proyecto.get_absolute_url }}",
+                latlng: new google.maps.LatLng({{ proyecto.getLatLng }})
+            };
+            bounds.extend(elem.latlng);
+            results.push(elem);
+        {% endfor %}
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="span-24 last contenedor">
+        {# Formulario oculto de contacto, se llena con el id del proyecto de la lista #}
+        <form id="contacto_form" action="{% url contacto %}" method="post">
+            <input type="hidden" name="contacto_proyecto_id" id="id_proyecto_contacto"/>
+        </form>
+
+        {# Formulario para filtrar los proyectos #}
+        <form action="" method="post">
+            <!-- Contenedor izquierdo -->
+            <div class="span-14 box">
+                <!-- Formulario superior-->
+                <div class="span-14 last form_arriba">
+                    <div class="span-14 last">
+                        <h2 class="titulo titulo_buscar">{% blocktrans %}Buscador{% endblocktrans %}</h2>
+                    </div>
+                    <div class="span-14 last">
+                        <div class="span-11">
+                            <table>
+                                {{ form.non_field_errors }}
+                                {% if form.ubicacion.errors %}
+                                <tr>
+                                    <td colspan="2">
+                                        <ul class="errorlist">
+                                            {{ form.ubicacion.errors }}
+                                        </ul>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>
+                                        <label for="id_ubicacion">{% blocktrans %}Ubicación{% endblocktrans %}:</label>
+                                    </th>
+                                    <td>
+                                        {{ form.ubicacion }}
+                                        <img class="get_ubicacion" src="{{ STATIC_URL }}common/img/Mundito de ubicacion.png" alt="Mapa">
+                                    </td>
+                                </tr>
+                                {% if form.nombre.errors %}
+                                <tr>
+                                    <td colspan="2">
+                                        <ul class="errorlist">
+                                            {{ form.nombre.errors }}
+                                        </ul>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>
+                                        <label for="id_nombre">{% blocktrans %}Nombre{% endblocktrans %}:</label>
+                                    </th>
+                                    <td>
+                                        {{ form.nombre }}
+                                    </td>
+                                </tr>
+                                {% if form.rubro.errors %}
+                                <tr>
+                                    <td colspan="2">
+                                        <ul class="errorlist">
+                                            {{ form.rubro.errors }}
+                                        </ul>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <th>
+                                        <label for="id_rubro">{% blocktrans %}Rubro{% endblocktrans %}:</label>
+                                    </th>
+                                    <td>
+                                        {{ form.rubro }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="span-3 last">
+                            <input type="submit" value="{% blocktrans %}Buscar{% endblocktrans %}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados de la búsqueda -->
+                <div class="span-14 last">
+                    <!-- Tabs de rubros -->
+                    <div class="span-14 last tabs_rubros">
+                        <ul>
+                            <li {% if not rubro_activo %}class="activo"{% else %}class="tab_0"{% endif %}>
+                                <a href="{% url resultados %}">{% blocktrans %}Todos{% endblocktrans %}</a>
+                            </li>
+                        {% for rubro in rubros %}
+                            <li {% if rubro_activo == rubro %}class="activo"{% else %}class="tab_{% if not rubro_activo %}{{ forloop.counter0 }}{% else %}{{ forloop.counter }}{% endif %}"{% endif %}>
+                                <a href="{% url resultados rubro.id %}">{{ rubro.nombre }}</a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="span-14 last filtros">
+                        <div class="span-9">
+                            {{ resultados_sp|length }} {% blocktrans %}Resultado{% endblocktrans %}{{ resultados_sp|pluralize }}
+                        </div>
+                        <div class="span-5 last">
+{#                            TODO: Se necesitan estos filtros? #}
+{#                            Ordenar por:#}
+{#                            <select>#}
+{#                                <option value="">filtro 1</option>#}
+{#                            </select>#}
+                        </div>
+                    </div>
+
+                    <div class="span-14 last">
+                        {% for proyecto in resultado.object_list %}
+                        <div class="span-14 last item_box">
+                            <!-- Datos principales -->
+                            <div class="span-4">
+                                <a href="{{ proyecto.get_absolute_url }}">
+                                    <img src="{{ proyecto.foto_principal.extra_thumbnails.preview }}" title="{{ proyecto }}"/>
+                                </a>
+                            </div>
+                            <div class="span-10 last proyecto_preview">
+                                <div class="span-5">
+                                    <h3>
+                                        <a href="{{ proyecto.get_absolute_url }}">
+                                            {{ proyecto.nombre }}
+                                        </a>
+                                    </h3>
+                                    <h4>
+                                        <a href="{{ proyecto.rubro.get_absolute_url }}">
+                                            {{ proyecto.rubro }}
+                                        </a>
+                                    </h4>
+                                    {% if proyecto.direccion %}
+                                    <span>{{ proyecto.direccion }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="span-5 last detalles">
+                                    <!-- Rango de precios del proyecto -->
+                                    {% if proyecto.precio_maximo and proyecto.precio_minimo %}
+                                    <div>
+                                        <span>{% blocktrans %}Precio{% endblocktrans %}: ${{ proyecto.precio_minimo|floatformat:"0"|intcomma }} - ${{ proyecto.precio_maximo|floatformat:"0"|intcomma }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <!-- Ofertas -->
+                                    <div>
+                                        {% get_random_oferta proyecto %}
+                                    </div>
+                                    <div latitud="{{ proyecto.latitud }}" longitud="{{ proyecto.longitud }}" class="link link_mapa_proyecto">
+                                        <span>{% blocktrans %}Ver mapa{% endblocktrans %}</span>
+                                        <img src="{{ STATIC_URL }}common/img/Mundito pop up.png" alt="">
+                                    </div>
+                                </div>
+                                <!-- Acciones -->
+                                <div class="span-10 last acciones">
+                                    <ul>
+                                        <li>
+                                            <!-- AddThis Button BEGIN -->
+                                            <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4da5c6bd7f9dcd59"><img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+                                            <script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+                                            <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4da5c6bd7f9dcd59"></script>
+                                            <!-- AddThis Button END -->
+                                        </li>
+                                        {% if user.is_authenticated %}
+                                        <li>
+                                            {% if cliente in proyecto.clientes.all %}
+                                                <span>{% blocktrans %}Ya está afiliado{% endblocktrans %}</span>
+                                            {% else %}
+                                                <span class="link_afiliar boton" proyecto_id="{{ proyecto.id }}">{% blocktrans %}Afiliarse{% endblocktrans %}</span>
+                                            {% endif %}
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <span class="link contacto_link" proyecto="{{ proyecto.id }}">Contacto</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Paginador de proyectos -->
+                    <div class="span-14 last">
+                        <div class="paginator">
+                            {% paginator resultado %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor derecho -->
+            <div class="span-8 last box">
+                <!-- Mapa de resultados -->
+                <div class="span-8 last mapa_proyectos">
+                    <h2 class="titulo titulo_mapa">{% blocktrans %}Mapa{% endblocktrans %}</h2>
+                    <div id="map_resultados" style="width:320px; height:300px"></div>
+                    <p>
+                        <span class="results_link link">{% blocktrans %}Agrandar{% endblocktrans %}</span>
+                    </p>
+                </div>
+
+                <!-- Fomrulario lateral -->
+                <div class="span-8 last filtro_form">
+                    <h2 class="fucsia">{% blocktrans %}Filtros{% endblocktrans %}</h2>
+                    <ul>
+                        <li>
+                            {{ form.tipo.errors }}
+                            <label for="id_tipo">{% blocktrans %}Tipo{% endblocktrans %}:</label>
+                            {{ form.tipo }}
+                        </li>
+                        <!-- Slider de rango de precios-->
+                        <li>
+                            <div class="prepend-top append-bottom span-8 last">
+                                <div class="span-2">
+                                    <div class="fucsia_box"></div>
+                                </div>
+                                <div class="span-4">
+                                    <label>{% blocktrans %}Precios entre{% endblocktrans %}:</label>
+                                    <div id="slider-range"></div>
+                                </div>
+                                <div class="span-2 last">
+                                    <div class="gris_box"></div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="buscar_abajo">
+                            <input type="submit" value="{% blocktrans %}Buscar{% endblocktrans %}">
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Publicidad -->
+                <div class="span-8 last">
+                    {% publicidad %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="popup_preview_map" class="jqmWindow">
+        <h1 class="ubicacion_titulo">{% blocktrans %}Ubicación{% endblocktrans %}</h1>
+        <div id="map_preview" style="width:570px; height:300px"></div>
+    </div>
+
+    <div id="popup_results_map" class="jqmWindow">
+        <h1 class="ubicacion_titulo">{% blocktrans %}Mapa de resultados de la búsqueda{% endblocktrans %}</h1>
+        <div id="map_resultados_big" style="width:570px; height:300px"></div>
+    </div>
+
+    <div id="ubicacion_map" class="jqmWindow">
+        <h1 class="titulo fucsia">{% blocktrans %}Encuentra su ubicación{% endblocktrans %}</h1>
+        <a class="ayuda" href="{% url ayuda_ubicacion %}" target="_blank">{% blocktrans %}¿Cómo seleccionar una ubicación en el mapa?{% endblocktrans %}</a>
+        <div id="map_area" style="width: 570px; height: 300px"></div>
+        <div class="aceptar">
+            <button id="get_bounds" class="boton">{% blocktrans %}Aceptar{% endblocktrans %}</button>
+        </div>
+    </div>
+{% endblock %}
